@@ -1,13 +1,12 @@
 package tail
 
 import (
+	"context"
 	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-
-	"context"
 
 	"github.com/Sirupsen/logrus"
 )
@@ -91,5 +90,4 @@ func (info *Info) handle(str string) {
 			}
 		}
 	}
-	//logrus.Println(info)
 }

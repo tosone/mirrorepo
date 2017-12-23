@@ -3,6 +3,8 @@ package clone
 import (
 	"path"
 
+	"encoding/json"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/tosone/mirror-repo/common/defination"
 	"github.com/tosone/mirror-repo/common/errCode"
@@ -21,14 +23,27 @@ func (info Info) Start() interface{} {
 	if info.Address != "" {
 		errRet = errCode.AddressNull
 	} else {
-		var repo = models.Repo{Address: info.Address, Status: "Waiting", Name: info.Name}
-		if err := repo.Add(); err != nil {
+		var repo = &models.Repo{Address: info.Address, Status: "Waiting", Name: info.Name}
+		if err := repo.Create(); err != nil {
 			logrus.Error(err)
 			errRet = errCode.DatabaseErr
 		} else {
-			if err := models.AddTask(repo, "clone", defination.TaskContentClone{Address: repo.Address, Destination: path.Join(config.Get.Repo, info.Name)}); err != nil {
-				logrus.Error(err)
-				errRet = errCode.DatabaseErr
+			var taskContent []byte
+			taskContent, err = json.Marshal(defination.TaskContentClone{
+				Address:     repo.Address,
+				Destination: path.Join(config.Get.Repo, info.Name),
+			})
+			if err != nil {
+				return err
+			}
+			task := models.Task{
+				RepoID:  repo.ID,
+				Name:    "clone",
+				Content: taskContent,
+			}
+			err = task.Create()
+			if err != nil {
+				return err
 			}
 		}
 	}

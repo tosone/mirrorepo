@@ -5,8 +5,9 @@ Target     = morror-repo
 
 build: clean
 	mkdir release
-	GOOS="darwin" GOARCH="amd64" go build -v -o release/${Target}-mac -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}" main.go
-	GOOS="linux" GOARCH="amd64" go build -v -o release/${Target}-linux -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}" main.go
+	#CGO_ENABLED=1 CC=clang GOOS=darwin GOARCH=amd64 go build -v -o release/${Target}-mac -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}" main.go
+	#CGO_ENABLED=1 CC=gcc GOOS=linux GOARCH=amd64 go build -v -o release/${Target}-linux -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}" main.go
+	CXX=arm-none-eabi-g++ CC=arm-none-eabi-gcc CGO_ENABLED=1 GOOS=linux GOARM=7 GOARCH=arm go build -v -o release/${Target}-linux -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}" main.go
 
 test:
 	go test .
