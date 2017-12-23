@@ -1,140 +1,76 @@
 package models
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
-	"github.com/garyburd/redigo/redis"
-	"github.com/satori/go.uuid"
-	"github.com/tosone/mirror-repo/common/funcs"
+	"github.com/tosone/mirror-repo/common/errCode"
+	"github.com/tosone/mirror-repo/common/taskMgr"
 )
 
 type Task struct {
-	Model
-	RepoID  uuid.UUID `json:"repo_id"` // 外键
-	Name    string    `json:"name"`    // 任务名
-	Content []byte    `json:"content"` // 任务内容
-	Status  string    `json:"status"`  // 任务状态
-	Error   string    `json:"error"`   // 失败原因
+	Id       int64      `xorm:"pk autoincr"` // 主键
+	RepoId   int64      `xorm:"index"`       // 外键
+	Cmd      string     // 任务名
+	Content  []byte     // 任务内容
+	Progress int        // 进度
+	Status   string     // 任务状态
+	Error    string     // 失败原因
+	CreateAt time.Time  `xorm:"created"` // 创建时间
+	UpdateAt time.Time  `xorm:"updated"` // 更新时间
+	DeleteAt *time.Time `xorm:"deleted"` // 删除时间
 }
 
-// GetATask 获取新的任务
-func (task *Task) GetATask(name string) (retTask *Task, err error) {
-	var keys []string
-	keys, err = redis.Strings(engine.Get().Do("keys", "*"))
-	if err != nil {
-		return
-	}
-	for _, key := range keys {
-		if strings.HasPrefix(key, fmt.Sprintf("hm:%s", funcs.BucketName(task))) {
-			var values []interface{}
-			values, err = redis.Values(engine.Get().Do("HGETALL", key))
-			if err != nil {
-				return
-			}
-			err = redis.ScanStruct(values, &retTask)
-			if err != nil {
-				return
-			}
-			if retTask.DeleteAt == nil {
-				return
-			}
-		}
-	}
-	err = ErrDatabaseNull
-	return
+// Create ..
+func (task *Task) Create() (int64, error) {
+	defer func() {
+		taskMgr.Trigger(task.Cmd)
+	}()
+	return engine.Insert(task)
 }
 
-// AddTask 添加任务
-func (task *Task) Create() (err error) {
-	_, err = task.GetByID()
-	if err == ErrNoSuchKey {
-		var now = time.Now()
-		task.ID = uuid.NewV4()
-		task.CreateAt = now
-		task.UpdateAt = now
-		_, err = engine.Get().Do("HMSET", redis.Args{}.Add(fmt.Sprintf("hm:%s:%s", funcs.BucketName(task), task.ID)).AddFlat(&task)...)
-		if err != nil {
-			return
-		}
-		return
-	}
-	if err == nil {
-		err = ErrKeyAlreadyExist
-	}
-	return
-}
-
-// Failed 任务失败
-func (task *Task) Failed(errParams error) (err error) {
-	if errParams == nil {
-		task.Success()
-	}
-	task.Error = errParams.Error()
+// Failed ..
+func (task *Task) Failed(err error) (int64, error) {
+	var num int64
 	task.Status = "failed"
-	return task.UpdateByID()
+	task.Error = err.Error()
+	if num, err = task.Update(); err != nil || num == 0 {
+		return num, err
+	}
+	return task.Delete()
 }
 
-// Success 任务成功
-func (task *Task) Success() error {
+// Success ..
+func (task *Task) Success() (int64, error) {
+	var num int64
 	task.Status = "success"
-	return task.UpdateByID()
+	if num, err = task.Update(); err != nil || num == 0 {
+		return num, err
+	}
+	return task.Delete()
 }
 
-// UpdateByID ..
-func (task *Task) UpdateByID() (err error) {
-	_, err = task.GetByID()
-	if err != nil {
-		return
-	}
-	now := time.Now()
-	task.UpdateAt = now
-	_, err = engine.Get().Do("HMSET", redis.Args{}.Add(fmt.Sprintf("hm:%s:%s", funcs.BucketName(task), task.ID)).AddFlat(&task)...)
-	if err != nil {
-		return
-	}
+// Delete ..
+func (task *Task) Delete() (int64, error) {
+	return engine.Delete(task)
+}
+
+func (task *Task) Update() (int64, error) {
+	return engine.Id(task.Id).Update(task)
+}
+
+// Find ..
+func (task *Task) Find() (r Repo, err error) {
+	err = engine.Find(&r, task)
 	return
 }
 
-// GetByID ..
-func (task *Task) GetByID() (retTask *Task, err error) {
-	var keys []string
-	keys, err = redis.Strings(engine.Get().Do("keys", "*"))
-	if err != nil {
-		return
+func GetATask(cmd string) (*Task, error) {
+	var b bool
+	var err error
+	var t = new(Task)
+	b, err = engine.Where("cmd = ?", cmd).Limit(1).Get(t)
+	if !b {
+		err = errCode.ErrNoSuchRecord
 	}
-	for _, key := range keys {
-		if strings.HasPrefix(key, fmt.Sprintf("hm:%s", funcs.BucketName(task))) {
-			var values []interface{}
-			values, err = redis.Values(engine.Get().Do("HGETALL", key))
-			if err != nil {
-				return
-			}
-			err = redis.ScanStruct(values, &retTask)
-			if err != nil {
-				return
-			}
-			if retTask.ID == task.ID && retTask.DeleteAt == nil {
-				return
-			}
-		}
-	}
-	err = ErrNoSuchKey
-	return
-}
-
-// Remove 删除任务
-func (task *Task) RemoveByID() (err error) {
-	_, err = task.GetByID()
-	if err != nil {
-		return
-	}
-	now := time.Now()
-	task.DeleteAt = &now
-	_, err = engine.Get().Do("HMSET", redis.Args{}.Add(fmt.Sprintf("hm:%s:%s", funcs.BucketName(task), task.ID)).AddFlat(&task)...)
-	if err != nil {
-		return
-	}
-	return
+	return t, err
 }

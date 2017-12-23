@@ -1,41 +1,38 @@
 package clone
 
 import (
-	"github.com/Sirupsen/logrus"
-	"github.com/satori/go.uuid"
-	"github.com/tosone/mirror-repo/common/defination"
-	"github.com/tosone/mirror-repo/common/errCode"
+	"log"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/tosone/mirror-repo/cmd/web/webServices/errWebCode"
 	"github.com/tosone/mirror-repo/models"
 )
 
 // Stop 停止
-func Stop(repoID string) interface{} {
-	var errRet = errCode.Normal
+func Stop(context *gin.Context) {
+	context.JSON(200, errWebCode.Normal)
+
 	var repo = &models.Repo{}
-	var repoUUID uuid.UUID
 	var err error
 
-	repoUUID, err = uuid.FromBytes([]byte(repoID))
+	repo.Id, err = strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
-		logrus.Error(err)
-		return defination.WebServiceReturn{
-			Code:  errCode.RepoIDNotValid.Code,
-			Error: errCode.RepoIDNotValid.Describe,
-		}
+		log.Fatal(err)
+		context.JSON(200, errWebCode.RepoIDNotValid)
+		return
 	}
 
-	repo.ID = repoUUID
-	repo, err = repo.GetByID()
+	repo, err = repo.Find()
 	if err != nil {
-		return defination.WebServiceReturn{Code: errRet.Code, Error: errRet.Describe}
+		log.Fatal(err)
+		context.JSON(200, errWebCode.DatabaseErr)
+		return
 	}
 
 	if repo.Status != "receiving" {
-		errRet = errCode.CloneCannotBeStopped
+		context.JSON(200, errWebCode.CloneCannotBeStopped)
 	}
 
-	return defination.WebServiceReturn{
-		Code:  errRet.Code,
-		Error: errRet.Describe,
-	}
+	return
 }

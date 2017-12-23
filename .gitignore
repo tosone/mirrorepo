@@ -5,3 +5,4 @@ release/
 *.db
 *.db-journal
 repo/
+*.log

@@ -22,6 +22,19 @@ type TaskContentClone struct {
 
 // WebServiceReturn WebServiceReturn
 type WebServiceReturn struct {
-	Code  int
-	Error string
+	Code int
+	Msg  string
 }
+
+type RepoStatus string
+
+var (
+	Success          RepoStatus = "success"
+	Waiting          RepoStatus = "waiting"
+	CloneConecting   RepoStatus = "cloneConnecting"
+	CloneReceiving   RepoStatus = "cloneReceiving"
+	CloneResolving   RepoStatus = "cloneResolving"
+	UpdateConnecting RepoStatus = "updateConnecting"
+	UpdateReceiving  RepoStatus = "UpdateReceiving"
+	UpdateResolving  RepoStatus = "UpdateResolving"
+)

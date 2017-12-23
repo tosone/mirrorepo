@@ -1,55 +1,64 @@
 package clone
 
 import (
+	"encoding/json"
+	"log"
+	"net/http"
 	"path"
 
-	"encoding/json"
-
-	"github.com/Sirupsen/logrus"
+	"github.com/Unknwon/com"
+	"github.com/gin-gonic/gin"
+	"github.com/tosone/mirror-repo/cmd/web/webServices/errWebCode"
 	"github.com/tosone/mirror-repo/common/defination"
-	"github.com/tosone/mirror-repo/common/errCode"
 	"github.com/tosone/mirror-repo/config"
 	"github.com/tosone/mirror-repo/models"
 )
 
-type Info struct {
-	Address     string
-	Name        string
-	IsSendEmail string
-}
+func Start(context *gin.Context) {
+	var err error
+	var address = context.PostForm("address")
+	var name = context.PostForm("name")
+	//var isSendEmail = context.PostForm("isSendEmail")
 
-func (info Info) Start() interface{} {
-	var errRet = errCode.Normal
-	if info.Address != "" {
-		errRet = errCode.AddressNull
-	} else {
-		var repo = &models.Repo{Address: info.Address, Status: "Waiting", Name: info.Name}
-		if err := repo.Create(); err != nil {
-			logrus.Error(err)
-			errRet = errCode.DatabaseErr
-		} else {
-			var taskContent []byte
-			taskContent, err = json.Marshal(defination.TaskContentClone{
-				Address:     repo.Address,
-				Destination: path.Join(config.Get.Repo, info.Name),
-			})
-			if err != nil {
-				return err
-			}
-			task := models.Task{
-				RepoID:  repo.ID,
-				Name:    "clone",
-				Content: taskContent,
-			}
-			err = task.Create()
-			if err != nil {
-				return err
-			}
-		}
+	if address == "" {
+		context.JSON(http.StatusOK, errWebCode.AddressNull)
+		return
 	}
 
-	return defination.WebServiceReturn{
-		Code:  errRet.Code,
-		Error: errRet.Describe,
+	var repo = &models.Repo{Address: address, Status: defination.Waiting, Name: name}
+	if _, err = repo.Create(); err != nil {
+		log.Println(err)
+		context.JSON(http.StatusOK, errWebCode.DatabaseErr)
+		return
 	}
+
+	if com.IsDir(path.Join(config.Repo, name)) {
+		context.JSON(http.StatusOK, errWebCode.DirExist)
+		return
+	}
+
+	var taskContent []byte
+	taskContent, err = json.Marshal(defination.TaskContentClone{
+		Address:     repo.Address,
+		Destination: path.Join(config.Repo, name),
+	})
+	if err != nil {
+		log.Println(err)
+		context.JSON(http.StatusOK, errWebCode.JSONMarshalErr)
+		return
+	}
+
+	task := &models.Task{
+		RepoId:  repo.Id,
+		Cmd:     "clone",
+		Content: taskContent,
+	}
+	_, err = task.Create()
+	if err != nil {
+		log.Println(err)
+		context.JSON(http.StatusOK, errWebCode.DatabaseErr)
+		return
+	}
+	context.JSON(http.StatusOK, errWebCode.Normal)
+	return
 }

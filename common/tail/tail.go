@@ -2,13 +2,12 @@ package tail
 
 import (
 	"context"
+	"log"
 	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/Sirupsen/logrus"
 )
 
 type Info struct {
@@ -28,7 +27,7 @@ func (info *Info) Watch() {
 				return
 			default:
 				if out, err := exec.Command("cat", "-e", info.Filename).Output(); err != nil {
-					logrus.Error(err)
+					log.Println(err)
 				} else {
 					info.Status = "Connecting"
 					info.handle(string(out))
@@ -51,7 +50,7 @@ func (info *Info) handle(str string) {
 		if strings.Contains(strDollar, "^M") {
 			for _, strM := range strings.Split(str, "^M") {
 				if reg, err := regexp.Compile(`Receiving\s+objects:\s+(\d+)%[\w\W]+`); err != nil {
-					logrus.Error(err)
+					log.Println(err)
 				} else {
 					matches := reg.FindStringSubmatch(strM)
 					if len(matches) == 2 {
@@ -62,13 +61,13 @@ func (info *Info) handle(str string) {
 									info.Progress = num
 								}
 							} else {
-								logrus.Error(err)
+								log.Println(err)
 							}
 						}
 					}
 				}
 				if reg, err := regexp.Compile(`Resolving\s+deltas:\s+(\d+)%[\w\W]+\)`); err != nil {
-					logrus.Error(err)
+					log.Println(err)
 				} else {
 					matches := reg.FindStringSubmatch(strM)
 					if len(matches) == 2 {
@@ -82,11 +81,10 @@ func (info *Info) handle(str string) {
 								info.Progress = num
 							}
 						} else {
-							logrus.Error(err)
+							log.Println(err)
 						}
 					}
 				}
-				logrus.Println(info)
 			}
 		}
 	}

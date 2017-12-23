@@ -3,17 +3,18 @@ package clone
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"os"
 	"os/exec"
 	"path"
 	"sync"
 	"time"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/Unknwon/com"
 	"github.com/kataras/go-errors"
 	"github.com/satori/go.uuid"
 	"github.com/tosone/mirror-repo/common/defination"
+	"github.com/tosone/mirror-repo/common/errCode"
 	"github.com/tosone/mirror-repo/common/tail"
 	"github.com/tosone/mirror-repo/common/taskMgr"
 	"github.com/tosone/mirror-repo/config"
@@ -23,7 +24,7 @@ import (
 
 const serviceName = "clone"
 
-var threadsClone map[string]threadInfo
+var threadsClone = map[string]threadInfo{}
 
 type threadInfo struct {
 	Status   string
@@ -41,11 +42,11 @@ func Initialize() {
 			case control := <-channel:
 				switch control.Cmd {
 				case "start":
-					if uint(len(threadsClone)) < config.Get.MaxThread {
+					if uint(len(threadsClone)) < config.MaxThread {
 						ctx, ctxCancel = context.WithCancel(context.Background())
 						clone(ctx)
 					} else {
-						logrus.Info("clone has got its max thread.")
+						log.Println("clone has got its max thread.")
 					}
 				case "stop":
 					if ctxCancel != nil {
@@ -61,32 +62,38 @@ func Initialize() {
 func clone(ctx context.Context) {
 	var content defination.TaskContentClone
 	var err error
-	var task models.Task
+	var task = &models.Task{}
+	var repo = &models.Repo{}
 	defer func() {
 		if err != nil {
-			if task.ID != 0 {
-				if err := task.Failed(err); err != nil {
-					logrus.Error(err)
-				}
+			if err == errCode.ErrNoSuchRecord {
+				log.Printf("Cannot find a valid %s task.", serviceName)
 			} else {
-				if err := task.Remove(); err != nil {
-					logrus.Error(err)
+				if _, err := task.Failed(err); err != nil {
+					log.Println(err)
 				}
 			}
 		} else {
-			if err := task.Success(); err != nil {
-				logrus.Error(err)
+			if num, err := task.Success(); err != nil || num == 0 {
+				log.Printf("Task done but delete with error: %s, effect rows: %d", err.Error(), num)
 			}
 		}
 	}()
+
 	if task, err = models.GetATask(serviceName); err != nil {
-		logrus.Error(err)
+		log.Println(err)
 		return
-	} else {
-		if err := json.Unmarshal(task.Content, &content); err != nil {
-			logrus.Error(err)
-			return
-		}
+	}
+
+	if err = json.Unmarshal(task.Content, &content); err != nil {
+		log.Println(err)
+		return
+	}
+
+	repo.Id = task.RepoId
+	if repo, err = repo.Find(); err != nil {
+		log.Println(err)
+		return
 	}
 
 	if com.IsDir(path.Join(content.Destination)) {
@@ -97,7 +104,7 @@ func clone(ctx context.Context) {
 	var tmpFile = "/tmp/" + uuid.NewV4().String()
 
 	if file, err := os.OpenFile(tmpFile, os.O_CREATE, 0644); err != nil {
-		logrus.Error(err)
+		log.Println(err)
 		return
 	} else {
 		file.Close()
@@ -105,7 +112,7 @@ func clone(ctx context.Context) {
 
 	defer func() {
 		if err := os.Remove(tmpFile); err != nil {
-			logrus.Error(err)
+			log.Println(err)
 		}
 	}()
 
@@ -122,18 +129,21 @@ func clone(ctx context.Context) {
 			bar.Set(info.Progress)
 			bar.Prefix(info.Status)
 			threadsClone[content.Address] = threadInfo{Status: info.Status, Progress: info.Progress}
-			time.Sleep(time.Millisecond * 200)
+			time.Sleep(time.Millisecond * 500)
+			repo.Status = defination.RepoStatus(info.Status)
+			task.Progress = info.Progress
+			task.Update()
+			repo.Update()
 		}
 	}()
 
 	if err := cmd.Start(); err != nil {
-		logrus.Error(err)
+		log.Println(err)
 	}
 
 	var done = make(chan error)
 	go func() {
 		done <- cmd.Wait()
-		logrus.Println("wait")
 	}()
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -152,10 +162,14 @@ func clone(ctx context.Context) {
 
 	if _, err := os.FindProcess(cmd.Process.Pid); err != nil {
 		if err := cmd.Process.Kill(); err != nil {
-			logrus.Error(err)
+			log.Println(err)
 		}
 	}
 
-	info.Stop()
+	bar.Prefix("Success")
+	bar.Set(100)
 	bar.Finish()
+	info.Stop()
+	repo.Status = defination.Success
+	repo.Update()
 }

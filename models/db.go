@@ -1,24 +1,28 @@
 package models
 
 import (
-	"time"
+	"io"
+	"log"
 
-	"github.com/Sirupsen/logrus"
-	"github.com/garyburd/redigo/redis"
+	"github.com/go-xorm/xorm"
+	_ "github.com/mattn/go-sqlite3"
 )
 
-var engine *redis.Pool
+var engine *xorm.Engine
+var err error
 
-func init() {
-	engine = &redis.Pool{
-		MaxIdle:     3,
-		IdleTimeout: 240 * time.Second,
-		Dial: func() (conn redis.Conn, err error) {
-			conn, err = redis.DialURL("redis://:8541539655@47.88.10.29:6379/0")
-			if err != nil {
-				logrus.Error(err)
-			}
-			return
-		},
+func Connect() {
+	engine, err = xorm.NewEngine("sqlite3", "./test.db")
+	if err != nil {
+		log.Panicln(err)
 	}
+	err = engine.Sync2(new(Repo), new(Task))
+	if err != nil {
+		log.Panicln(err)
+	}
+}
+
+func Logging(logFile io.Writer) {
+	engine.ShowSQL(true)
+	engine.SetLogger(xorm.NewSimpleLogger(logFile))
 }
