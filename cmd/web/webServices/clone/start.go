@@ -8,9 +8,9 @@ import (
 
 	"github.com/Unknwon/com"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	"github.com/tosone/mirror-repo/cmd/web/webServices/errWebCode"
 	"github.com/tosone/mirror-repo/common/defination"
-	"github.com/tosone/mirror-repo/config"
 	"github.com/tosone/mirror-repo/models"
 )
 
@@ -32,7 +32,7 @@ func Start(context *gin.Context) {
 		return
 	}
 
-	if com.IsDir(path.Join(config.Repo, name)) {
+	if com.IsDir(path.Join(viper.GetString("Setting.Repo"), name)) {
 		context.JSON(http.StatusOK, errWebCode.DirExist)
 		return
 	}
@@ -40,7 +40,7 @@ func Start(context *gin.Context) {
 	var taskContent []byte
 	taskContent, err = json.Marshal(defination.TaskContentClone{
 		Address:     repo.Address,
-		Destination: path.Join(config.Repo, name),
+		Destination: path.Join(viper.GetString("Setting.Repo"), name),
 	})
 	if err != nil {
 		log.Println(err)

@@ -1,6 +1,7 @@
 package bash
 
 import (
+	"errors"
 	"io"
 	"os"
 	"os/exec"
@@ -9,7 +10,6 @@ import (
 )
 
 type CloneInfo struct {
-	Id          string
 	Address     string
 	Status      string
 	Progress    int
@@ -17,7 +17,7 @@ type CloneInfo struct {
 	cmd         *exec.Cmd
 }
 
-func (info *CloneInfo) Clone(dir string) (channel chan error) {
+func (info *CloneInfo) Start() (channel chan error) {
 	var err error
 
 	channel = make(chan error, 1)
@@ -26,7 +26,11 @@ func (info *CloneInfo) Clone(dir string) (channel chan error) {
 		channel <- err
 	}()
 
-	cmd := exec.Command("git", "clone", "--progress", info.Address, info.Destination)
+	if info.Address == "" || info.Destination == "" {
+		err = errors.New("clone info is not correct")
+	}
+
+	cmd := exec.Command("git", "clone", "--bare", "--progress", info.Address, info.Destination)
 
 	var stderrPipe io.ReadCloser
 

@@ -8,7 +8,7 @@ type TaskChannel struct {
 
 // ServiceCommand 各个服务之间的命令传递
 type ServiceCommand struct {
-	ID      string
+	Id      string
 	Cmd     string
 	Args    string
 	Channel chan bool
@@ -29,12 +29,14 @@ type WebServiceReturn struct {
 type RepoStatus string
 
 var (
+	Error            RepoStatus = "error"
+	Stopped          RepoStatus = "stopped"
 	Success          RepoStatus = "success"
 	Waiting          RepoStatus = "waiting"
 	CloneConecting   RepoStatus = "cloneConnecting"
 	CloneReceiving   RepoStatus = "cloneReceiving"
 	CloneResolving   RepoStatus = "cloneResolving"
 	UpdateConnecting RepoStatus = "updateConnecting"
-	UpdateReceiving  RepoStatus = "UpdateReceiving"
-	UpdateResolving  RepoStatus = "UpdateResolving"
+	UpdateReceiving  RepoStatus = "updateReceiving"
+	UpdateResolving  RepoStatus = "updateResolving"
 )

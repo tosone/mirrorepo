@@ -1,5 +1,6 @@
 Setting:
   Repo:
+  MaxThread: 4
 Web:
   Port:
 Database:
@@ -10,5 +11,11 @@ Database:
   Password:
   Port:
 Log:
-  Level:
-  Path:
+  App: app.log
+  Database: db.log
+  Level: 5
+  MaxAge: 30
+  MaxSize: 10
+  MaxBackups: 3
+  LocalTime: true
+  Compress: true

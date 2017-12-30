@@ -1,25 +1,40 @@
 package logging
 
 import (
-	"io"
-	"log"
-	"os"
-
+	"github.com/spf13/viper"
 	"github.com/tosone/mirror-repo/models"
 	"gopkg.in/lumberjack.v2"
-	"github.com/spf13/viper"
 )
 
+var logger = new(lumberjack.Logger)
+var sqlogger = new(lumberjack.Logger)
+
+// Rotate rotate the output log file
+func Rotate() {
+	logger.Rotate()
+}
+
+var logLevel Level
+
 func Setting() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	logger := &lumberjack.Logger{
-		Filename:   viper.GetString("log"),
-		MaxSize:    10,
-		MaxBackups: 3,
-		MaxAge:     28,
-		Compress:   true,
+	sqlogger = &lumberjack.Logger{
+		Filename:   viper.GetString("Log.Database"),
+		MaxSize:    viper.GetInt("Log.MaxSize"),
+		MaxBackups: viper.GetInt("Log.MaxBackups"),
+		MaxAge:     viper.GetInt("Log.MaxAge"),
+		LocalTime:  viper.GetBool("Log.LocalTime"),
+		Compress:   viper.GetBool("Log.Compress"),
 	}
-	mw := io.MultiWriter(os.Stdout, logger)
-	log.SetOutput(mw)
-	models.Logging(logger)
+	models.Logging(sqlogger)
+
+	logger = &lumberjack.Logger{
+		Filename:   viper.GetString("Log.App"),
+		MaxSize:    viper.GetInt("Log.MaxSize"),
+		MaxBackups: viper.GetInt("Log.MaxBackups"),
+		MaxAge:     viper.GetInt("Log.MaxAge"),
+		LocalTime:  viper.GetBool("Log.LocalTime"),
+		Compress:   viper.GetBool("Log.Compress"),
+	}
+
+	logLevel = viper.Get("Log.Level").(Level)
 }
