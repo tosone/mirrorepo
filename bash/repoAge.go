@@ -35,7 +35,8 @@ func RepoAge(dir string) (age string, err error) {
 	if err != nil {
 		return
 	}
-	stdoutBytes, err := ioutil.ReadAll(stdoutPipe)
+	var stdoutBytes []byte
+	stdoutBytes, err = ioutil.ReadAll(stdoutPipe)
 	if err != nil {
 		return
 	}
@@ -48,5 +49,21 @@ func RepoAge(dir string) (age string, err error) {
 		return
 	}
 	age = strings.TrimSpace(string(stdoutBytes))
+	return
+}
+
+func RepoAge1(dir string) (age string, err error) {
+	var isRepo bool
+	if isRepo, err = IsRepo(dir); err != nil {
+		return
+	} else if !isRepo {
+		return
+	}
+	var stdout []byte
+	stdout, err = Run(dir, "git log --reverse --pretty=oneline --format=\"%ar\" | head -n 1")
+	if err != nil {
+		return
+	}
+	age = strings.TrimSpace(string(stdout))
 	return
 }
