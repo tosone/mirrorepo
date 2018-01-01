@@ -1,8 +1,6 @@
 package clone
 
 import (
-	"encoding/json"
-	"log"
 	"net/http"
 	"path"
 
@@ -11,6 +9,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tosone/mirror-repo/cmd/web/webServices/errWebCode"
 	"github.com/tosone/mirror-repo/common/defination"
+	"github.com/tosone/mirror-repo/common/taskMgr"
+	"github.com/tosone/mirror-repo/logging"
 	"github.com/tosone/mirror-repo/models"
 )
 
@@ -25,9 +25,16 @@ func Start(context *gin.Context) {
 		return
 	}
 
-	var repo = &models.Repo{Address: address, Status: defination.Waiting, Name: name}
+	var repo = &models.Repo{
+		Address:   address,
+		Status:    defination.Waiting,
+		Name:      name,
+		RealPlace: path.Join(viper.GetString("Setting.Repo"), name),
+		Travel:    viper.GetInt("Setting.Travel"),
+	}
+
 	if _, err = repo.Create(); err != nil {
-		log.Println(err)
+		logging.Error(err.Error())
 		context.JSON(http.StatusOK, errWebCode.DatabaseErr)
 		return
 	}
@@ -37,28 +44,17 @@ func Start(context *gin.Context) {
 		return
 	}
 
-	var taskContent []byte
-	taskContent, err = json.Marshal(defination.TaskContentClone{
-		Address:     repo.Address,
-		Destination: path.Join(viper.GetString("Setting.Repo"), name),
+	err = taskMgr.Transport(taskMgr.ServiceCommand{
+		Task:        "clone",
+		Cmd:         "start",
+		TaskContent: taskMgr.TaskContentClone{Repo: repo},
 	})
+
 	if err != nil {
-		log.Println(err)
-		context.JSON(http.StatusOK, errWebCode.JSONMarshalErr)
+		logging.Error(err.Error())
+		context.JSON(200, errWebCode.ServiceErr)
 		return
 	}
 
-	task := &models.Task{
-		RepoId:  repo.Id,
-		Cmd:     "clone",
-		Content: taskContent,
-	}
-	_, err = task.Create()
-	if err != nil {
-		log.Println(err)
-		context.JSON(http.StatusOK, errWebCode.DatabaseErr)
-		return
-	}
-	context.JSON(http.StatusOK, errWebCode.Normal)
 	return
 }

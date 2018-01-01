@@ -1,49 +1,88 @@
 package scan
 
 import (
-	"log"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"path"
 
 	"github.com/spf13/viper"
+	"github.com/tosone/mirror-repo/bash"
+	"github.com/tosone/mirror-repo/common/defination"
+	"github.com/tosone/mirror-repo/common/taskMgr"
+	"github.com/tosone/mirror-repo/logging"
+	"github.com/tosone/mirror-repo/models"
+	"github.com/tosone/mirror-repo/services/clone"
 )
 
-func Initialize(scanDir []string) {
-	log.Println(viper.Get("DatabaseEngine"))
-	//var err error
-	//for _, dir := range scanDir {
-	//	err = filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
-	//		if err != nil {
-	//			log.Panicln(err)
-	//		}
-	//		if strings.Index(p, ".git") != -1 {
-	//			return err
-	//		}
-	//		if info.IsDir() {
-	//			if com.IsDir(path.Join(p, ".git")) {
-	//				cmd := exec.Command("git", "status")
-	//				cmd.Dir = p
-	//				stdout, err := cmd.StdoutPipe()
-	//				if err != nil {
-	//					log.Fatal(err)
-	//				}
-	//				if err := cmd.Start(); err != nil {
-	//					log.Fatal(err)
-	//				}
-	//				{
-	//					b, _ := ioutil.ReadAll(stdout)
-	//					log.Println(string(b))
-	//				}
-	//
-	//				if err := cmd.Wait(); err != nil {
-	//					log.Fatal(err)
-	//				}
-	//				log.Println(p)
-	//			}
-	//		}
-	//		return err
-	//	})
-	//}
-	//
-	//if err != nil {
-	//	log.Panicln(err)
-	//}
+func Initialize(scanDir ...string) {
+	var err error
+	for _, dir := range scanDir {
+		var repoPreFix []string
+		err = filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
+			if err != nil {
+				logging.Panic(err.Error())
+				return err
+			}
+			if !info.IsDir() {
+				return nil
+			}
+
+			if base := filepath.Base(p); strings.HasPrefix(base, ".") {
+				return nil
+			}
+
+			if strings.Index(p, ".git") != -1 {
+				return nil
+			}
+
+			for _, prefix := range repoPreFix {
+				if strings.HasPrefix(p, prefix) {
+					return nil
+				}
+			}
+
+			var isRepo bool
+			if isRepo = bash.IsRepo(p); !isRepo {
+				return nil
+			}
+			repoPreFix = append(repoPreFix, p)
+			var base = filepath.Base(p)
+			var address string
+
+			address, err = bash.GetRemoteUrl(p)
+			if err != nil {
+				return err
+			}
+			var repo = &models.Repo{
+				Address:   address,
+				Status:    defination.Waiting,
+				Name:      base,
+				RealPlace: path.Join(viper.GetString("Setting.Repo"), base),
+				Travel:    viper.GetInt("Setting.Traveled"),
+				SendEmail: false,
+			}
+			if _, err = repo.Create(); err != nil {
+				logging.WithFields(logging.Fields{"repo": repo}).Error(err.Error())
+				return err
+			}
+
+			err = taskMgr.Transport(taskMgr.ServiceCommand{
+				Task:        "clone",
+				Cmd:         "start",
+				TaskContent: taskMgr.TaskContentClone{Repo: repo, Scan: p},
+			})
+
+			return err
+		})
+	}
+
+	if err != nil {
+		logging.Panic(err.Error())
+	}
+	clone.WaitAll()
+
+	fmt.Println("\nscan ending")
 }

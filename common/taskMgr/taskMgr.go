@@ -1,41 +1,58 @@
 package taskMgr
 
 import (
-	"github.com/Sirupsen/logrus"
-	"github.com/tosone/mirror-repo/common/defination"
+	"fmt"
+	"sync"
+
+	"github.com/tosone/mirror-repo/models"
 )
 
-var taskList []defination.TaskChannel
-var err error
-
-// Register 注册一个服务
-func Register(name string, channel chan defination.ServiceCommand) {
-	taskList = append(taskList, defination.TaskChannel{Name: name, Channel: channel})
-	err = Trigger(name)
-	if err != nil {
-		logrus.Error(err)
-	}
+// TaskChannel 任务触发通道
+type TaskChannel struct {
+	Name    string
+	Channel chan ServiceCommand
 }
 
-// Trigger 触发一个服务
-func Trigger(name string) error {
-	return trans(name, defination.ServiceCommand{Cmd: "start"})
+// ServiceCommand 各个服务之间的命令传递
+type ServiceCommand struct {
+	Task        string      // 任务名
+	Cmd         string      // 任务命令
+	TaskContent interface{} // 任务内容
+}
+
+// TaskContentClone 克隆任务
+type TaskContentClone struct {
+	Repo *models.Repo
+	Scan string
+}
+
+// TaskContentUpdate 克隆任务
+type TaskContentUpdate struct {
+	SendMail bool `json:"sendMail"`
+}
+
+var taskList []TaskChannel
+
+// Register 注册一个服务
+func Register(name string, channel chan ServiceCommand) {
+	taskList = append(taskList, TaskChannel{Name: name, Channel: channel})
 }
 
 // Transport 传输信息到一个服务中
-func Transport(name string, info defination.ServiceCommand) error {
-	return trans(name, info)
-}
-
-func trans(name string, info defination.ServiceCommand) error {
+func Transport(info ServiceCommand) (err error) {
+	var wg = new(sync.WaitGroup)
+	wg.Add(1)
 	go func() {
 		for _, t := range taskList {
-			if t.Name == name {
+			if t.Name == info.Task {
+				wg.Done()
 				t.Channel <- info
 				return
 			}
 		}
-		logrus.Error("No such a service")
+		err = fmt.Errorf("no Such a service: %s", info.Task)
+		wg.Done()
 	}()
-	return nil
+	wg.Wait()
+	return
 }

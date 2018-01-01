@@ -22,10 +22,6 @@ func (info *CloneInfo) Start() (channel chan error) {
 
 	channel = make(chan error, 1)
 
-	defer func() {
-		channel <- err
-	}()
-
 	if info.Address == "" || info.Destination == "" {
 		err = errors.New("clone info is not correct")
 	}
@@ -49,6 +45,10 @@ func (info *CloneInfo) Start() (channel chan error) {
 		for {
 			var b = make([]byte, 80)
 			n, err = stderrPipe.Read(b)
+			if err == io.EOF {
+				err = nil
+				return
+			}
 			if err != nil {
 				return
 			}
@@ -95,10 +95,10 @@ func (info *CloneInfo) Start() (channel chan error) {
 			}
 		}
 	}()
-	err = cmd.Wait()
-	if err != nil {
-		return
-	}
+	go func() {
+		cmd.Wait()
+		channel <- err
+	}()
 	return
 }
 

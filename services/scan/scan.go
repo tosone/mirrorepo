@@ -1,5 +1,0 @@
-package scan
-
-func Initialize() {
-
-}

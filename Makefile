@@ -6,11 +6,11 @@ Target     = mirror-repo
 build: clean
 	mkdir release
 	CGO_ENABLED=1 CC=clang GOOS=darwin GOARCH=amd64 go build -v -o release/${Target}-mac -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}" main.go
-	#CGO_ENABLED=1 CC=gcc-7 GOOS=linux GOARCH=amd64 go build -v -o release/${Target}-linux -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}" main.go
+	#CGO_ENABLED=1 CC=gcc GOOS=linux GOARCH=amd64 go build -v -o release/${Target}-linux -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}" main.go
 	#CXX=arm-none-eabi-g++ CC=arm-none-eabi-gcc CGO_ENABLED=1 GOOS=linux GOARM=7 GOARCH=arm go build -v -o release/${Target}-linux -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}" main.go
 
-test:
-	./release/mirror-repo-mac --config=config.yaml scan 123
+test: cleanTest
+	./release/mirror-repo-mac --config=config.yaml scan /Users/tosone/gocode/src/gopkg.in
 
 authors:
 	echo "Authors\n=======\n\nProject's contributors:\n" > AUTHORS.md
@@ -18,3 +18,6 @@ authors:
 
 clean:
 	-rm -rf release
+
+cleanTest:
+	-rm -rf *.log mirror.db repo

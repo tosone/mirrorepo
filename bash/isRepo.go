@@ -1,24 +1,36 @@
 package bash
 
 import (
-	"strings"
+	"os/exec"
 
-	"errors"
+	"strings"
 
 	"github.com/Unknwon/com"
 )
 
-func IsRepo(dir string) (isRepo bool, err error) {
-	if !com.IsDir(dir) {
-		err = errors.New("dir is not exist")
-		return
-	}
-
+func IsRepo(dir string) (isRepo bool) {
 	var stdout []byte
-	stdout, err = Run(dir, "git rev-parse --is-inside-work-tree")
-	if err != nil {
+	var cmd *exec.Cmd
+
+	if !com.IsDir(dir) {
 		return
 	}
 
-	return strings.TrimSpace(string(stdout)) == "true", err
+	cmd = exec.Command("sh", "-c", "git rev-parse --is-inside-git-dir")
+	cmd.Dir = dir
+
+	stdout, _ = cmd.Output()
+
+	gitDir := strings.TrimSpace(string(stdout))
+
+	cmd = exec.Command("sh", "-c", "git rev-parse --is-inside-work-tree")
+	cmd.Dir = dir
+
+	stdout, _ = cmd.Output()
+
+	gitWorkDir := strings.TrimSpace(string(stdout))
+
+	//fmt.Println(dir, gitDir, gitWorkDir)
+
+	return gitDir == "true" || gitWorkDir == "true"
 }

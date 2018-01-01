@@ -12,4 +12,5 @@ var (
 	RepoIDNotValid       = gin.H{"code": 10004, "msg": "repo id is not valid"}
 	JSONMarshalErr       = gin.H{"code": 10005, "msg": ""}
 	DirExist             = gin.H{"code": 10006, "msg": "the special dir is already exist"}
+	ServiceErr           = gin.H{"code": 10007, "msg": "service error"}
 )

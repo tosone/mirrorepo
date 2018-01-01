@@ -2,17 +2,13 @@ package clone
 
 import (
 	"context"
-	"encoding/json"
-	"path"
+	"errors"
 	"sync"
 	"time"
 
 	"github.com/Unknwon/com"
-	"github.com/kataras/go-errors"
-	"github.com/spf13/viper"
 	"github.com/tosone/mirror-repo/bash"
 	"github.com/tosone/mirror-repo/common/defination"
-	"github.com/tosone/mirror-repo/common/errCode"
 	"github.com/tosone/mirror-repo/common/taskMgr"
 	"github.com/tosone/mirror-repo/logging"
 	"github.com/tosone/mirror-repo/models"
@@ -21,30 +17,32 @@ import (
 
 const serviceName = "clone"
 
-var threadsClone = map[int64]threadInfo{}
+var cloneLocker = new(sync.Mutex)
 
-type threadInfo struct {
-	status    string
-	progress  int
-	ctx       context.Context
-	ctxCancel context.CancelFunc
-}
+var currCloneId int64
+
+var cloneList = map[int64]*models.Repo{}
 
 func Initialize() {
-	channel := make(chan defination.ServiceCommand, 1)
+	channel := make(chan taskMgr.ServiceCommand, 1)
 	go func() {
 		for {
 			select {
 			case control := <-channel:
 				switch control.Cmd {
 				case "start":
-					if int(len(threadsClone)) < viper.GetInt("Setting.MaxThread") {
-						clone()
-					} else {
-						logging.Info("Clone has got its max thread.")
+					for _, repo := range cloneList {
+						if control.TaskContent.(taskMgr.TaskContentClone).Repo.Id == repo.Id {
+							return
+						}
 					}
+					cloneList[control.TaskContent.(taskMgr.TaskContentClone).Repo.Id] = control.TaskContent.(taskMgr.TaskContentClone).Repo
+					cloneLocker.Lock()
+					clone(control.TaskContent.(taskMgr.TaskContentClone))
+					delete(cloneList, control.TaskContent.(taskMgr.TaskContentClone).Repo.Id)
+					cloneLocker.Unlock()
 				case "stop":
-					stop(control.Id)
+					stop(control.TaskContent.(taskMgr.TaskContentClone).Repo.Id)
 				}
 			}
 		}
@@ -52,90 +50,81 @@ func Initialize() {
 	taskMgr.Register(serviceName, channel)
 }
 
-func clone() {
-	var content defination.TaskContentClone
+func WaitAll() {
+	var done = make(chan bool)
+	go func() {
+		for {
+			if len(cloneList) == 0 {
+				done <- true
+				break
+			}
+			time.Sleep(time.Second)
+		}
+	}()
+	<-done
+}
+
+var ctx context.Context
+var ctxCancel context.CancelFunc
+
+func clone(content taskMgr.TaskContentClone) {
 	var err error
-	var task = &models.Task{}
-	var repo = &models.Repo{}
-	var ctx, ctxCancel = context.WithCancel(context.Background())
+	var repo = content.Repo
+
+	ctx, ctxCancel = context.WithCancel(context.Background())
+
 	defer func() {
+		_, err = repo.Update()
 		if err != nil {
-			if err == errCode.ErrNoSuchRecord {
-				logging.WithFields(logging.Fields{"serviceName": serviceName}).Error("Cannot find a valid task.")
-			} else {
-				if _, err = task.Failed(err); err != nil {
-					logging.Error(err.Error())
-				}
-			}
-		} else {
-			var num int64
-			if num, err = task.Success(); err != nil || num == 0 {
-				logging.WithFields(logging.Fields{"err": err, "affectRows": num}).Error("Task done but delete error.")
-			}
+			logging.Error(err.Error())
 		}
 	}()
 
-	if task, err = models.GetATask(serviceName); err != nil {
-		logging.Error(err.Error())
-		return
-	}
-
-	if err = json.Unmarshal(task.Content, &content); err != nil {
-		logging.Error(err.Error())
-		return
-	}
-
-	repo.Id = task.RepoId
-
-	if repo, err = repo.Find(); err != nil {
-		logging.Error(err.Error())
-		return
-	}
-
-	if _, err = repo.Create(); err != nil {
-		logging.Error(err.Error())
-		return
-	}
-
-	if com.IsDir(path.Join(content.Destination)) {
+	if com.IsDir(repo.RealPlace) {
 		err = errors.New("dir is exist")
 		return
 	}
 
-	threadsClone[task.RepoId] = threadInfo{
-		status:    "init",
-		progress:  0,
-		ctx:       ctx,
-		ctxCancel: ctxCancel,
-	}
-	defer delete(threadsClone, task.RepoId)
+	currCloneId = repo.Id
 
-	var cloneInfo = bash.CloneInfo{
-		Address:     content.Address,
-		Destination: content.Destination,
+	var address = repo.Address
+	if content.Scan != "" {
+		address = content.Scan
+	}
+	var cloneInfo = &bash.CloneInfo{
+		Address:     address,
+		Destination: repo.RealPlace,
 	}
 	done := cloneInfo.Start()
-
 	bar := pb.StartNew(100)
+	defer bar.Finish()
+	var wg = new(sync.WaitGroup)
+	var signalDone = make(chan bool)
+	wg.Add(1)
 	go func() {
-		for !bar.IsFinished() {
+		defer wg.Done()
+		for {
 			bar.Set(cloneInfo.Progress)
-			bar.Prefix(cloneInfo.Status)
-			threadsClone[task.RepoId] = threadInfo{status: cloneInfo.Status, progress: cloneInfo.Progress}
+			bar.Prefix(repo.Name + " " + cloneInfo.Status)
 			time.Sleep(time.Millisecond * 500)
 			repo.Status = defination.RepoStatus(cloneInfo.Status)
-			task.Progress = cloneInfo.Progress
-			task.Update()
 			repo.Update()
+			select {
+			case <-signalDone:
+				return
+			default:
+			}
 		}
 	}()
 
-	var wg = new(sync.WaitGroup)
 	var doneResult error
 
 	wg.Add(1)
 	go func() {
-		defer wg.Done()
+		defer func() {
+			wg.Done()
+			signalDone <- true
+		}()
 		for {
 			select {
 			case <-ctx.Done():
@@ -152,28 +141,34 @@ func clone() {
 
 	if doneResult != nil {
 		logging.Error(doneResult.Error())
-		bar.Prefix("Error")
 		bar.Set(100)
-		bar.Finish()
-		repo.Status = defination.RepoStatus(err.Error())
-		repo.Update()
+		bar.Prefix(repo.Name + " " + "Error")
+		repo.Status = defination.Error
 		return
 	}
 
-	bar.Prefix("Success")
 	bar.Set(100)
-	bar.Finish()
+	bar.Prefix(repo.Name + " " + "Success")
 	repo.Status = defination.Success
-	repo.Update()
+	repo.CommitCount, err = bash.CountCommits(repo.RealPlace)
+	if err != nil {
+		logging.Error(err.Error())
+	}
+	repo.Size, err = bash.RepoSize(repo.RealPlace)
+	if err != nil {
+		logging.Error(err.Error())
+	}
 }
 
-func stop(id string) {
-	for k, v := range threadsClone {
-		if string(k) == id {
-			if v.ctxCancel != nil {
-				v.ctxCancel()
-			}
-			delete(threadsClone, k)
-		}
+func stop(id int64) {
+	if id != currCloneId {
+		return
 	}
+	if ctxCancel != nil {
+		ctxCancel()
+	}
+}
+
+func detail() {
+
 }

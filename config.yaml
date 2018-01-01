@@ -1,17 +1,19 @@
 Setting:
-  Repo:
-  MaxThread: 4
+  Repo: ./repo
+  Travel: 8
 Web:
-  Port:
+  Host: 127.0.0.1
+  Port: 8080
 Database:
-  Engine: mysql
-  Path:
-  Host:
-  Username:
-  Password:
-  Port:
+  Engine: sqlite3
+  Path: ./mirror.db
+  Host: 127.0.0.1
+  Username: tosone
+  Password: 8541539655
+  Port: 3306
 Log:
   App: app.log
+  ShowSQL: true
   Database: db.log
   Level: 5
   MaxAge: 30

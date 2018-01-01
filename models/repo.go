@@ -7,16 +7,19 @@ import (
 )
 
 type Repo struct {
-	Id          int64                 `xorm:"pk autoincr"`    // 主键
-	Address     string                `xorm:"notnull unique"` // 仓库地址
-	Name        string                `xorm:"notnull unique"` // 本地存储所用的名字
-	Schedule    uint                  `xorm:"notnull"`        // 仓库两次更新之间的时间间隔
-	Status      defination.RepoStatus // 仓库状态
-	CommitCount uint                  // commit 数量
-	IsSendEmail bool                  // 是否发送邮件
-	CreateAt    time.Time             `xorm:"created"` // 创建时间
-	UpdateAt    time.Time             `xorm:"updated"` // 更新时间
-	DeleteAt    *time.Time            `xorm:"deleted"` // 删除时间
+	Id           int64                 `xorm:"pk autoincr"`    // 主键
+	Address      string                `xorm:"notnull unique"` // 仓库地址
+	Name         string                `xorm:"notnull unique"` // 本地存储所用的名字
+	RealPlace    string                `xorm:"notnull"`        // 真正存储的地方
+	Travel       int                   `xorm:"notnull"`        // 仓库两次更新之间的时间间隔
+	LastTraveled time.Time             // 仓库上次被更新的时间
+	Status       defination.RepoStatus // 仓库状态
+	CommitCount  uint64                // commit 数量
+	Size         uint64                // 仓库大小
+	SendEmail    bool                  // 是否发送邮件
+	CreateAt     time.Time             `xorm:"created"` // 创建时间
+	UpdateAt     time.Time             `xorm:"updated"` // 更新时间
+	DeleteAt     *time.Time            `xorm:"deleted"` // 删除时间
 }
 
 // Create ..
@@ -41,102 +44,7 @@ func (repo *Repo) Update() (int64, error) {
 	return engine.Id(repo.Id).Update(repo)
 }
 
-//func (repo *Repo) GetByAddress() (exist bool, err error) {
-//	var keys []string
-//	var retRepo *Repo
-//	keys, err = redis.Strings(engine.Get().Do("keys", "*"))
-//	if err != nil {
-//		return
-//	}
-//	for _, key := range keys {
-//		if strings.HasPrefix(key, fmt.Sprintf("hm:%s", funcs.BucketName(repo))) {
-//			var values []interface{}
-//			values, err = redis.Values(engine.Get().Do("HGETALL", key))
-//			if err != nil {
-//				return
-//			}
-//			err = redis.ScanStruct(values, &retRepo)
-//			if err != nil {
-//				return
-//			}
-//			if retRepo.Address == repo.Address && retRepo.DeleteAt == nil {
-//				return
-//			}
-//		}
-//	}
-//	err = ErrNoSuchKey
-//	return
-//}
-//
-//func (repo *Repo) Create() (err error) {
-//	_, err = repo.GetByID()
-//	if err == ErrNoSuchKey {
-//		var now = time.Now()
-//		repo.ID = uuid.NewV4()
-//		repo.CreateAt = now
-//		repo.UpdateAt = now
-//		_, err = engine.Get().Do("HMSET", redis.Args{}.Add(fmt.Sprintf("hm:%s:%s", funcs.BucketName(repo), repo.ID)).AddFlat(&repo)...)
-//		if err != nil {
-//			return
-//		}
-//		return
-//	}
-//	if err == nil {
-//		err = ErrKeyAlreadyExist
-//	}
-//	return
-//}
-//
-//func (repo *Repo) GetByID() (retRepo *Repo, err error) {
-//	var keys []string
-//	keys, err = redis.Strings(engine.Get().Do("keys", "*"))
-//	if err != nil {
-//		return
-//	}
-//	for _, key := range keys {
-//		if strings.HasPrefix(key, fmt.Sprintf("hm:%s", funcs.BucketName(repo))) {
-//			var values []interface{}
-//			values, err = redis.Values(engine.Get().Do("HGETALL", key))
-//			if err != nil {
-//				return
-//			}
-//			err = redis.ScanStruct(values, &retRepo)
-//			if err != nil {
-//				return
-//			}
-//			if retRepo.ID == repo.ID && retRepo.DeleteAt == nil {
-//				return
-//			}
-//		}
-//	}
-//	err = ErrNoSuchKey
-//	return
-//}
-//
-//func (repo *Repo) RemoveByID() (err error) {
-//	_, err = repo.GetByID()
-//	if err != nil {
-//		return
-//	}
-//	now := time.Now()
-//	repo.DeleteAt = &now
-//	_, err = engine.Get().Do("HMSET", redis.Args{}.Add(fmt.Sprintf("hm:%s:%s", funcs.BucketName(repo), repo.ID)).AddFlat(&repo)...)
-//	if err != nil {
-//		return
-//	}
-//	return
-//}
-//
-//func (repo *Repo) UpdateByID(newRepo Repo) (err error) {
-//	_, err = repo.GetByID()
-//	if err != nil {
-//		return
-//	}
-//	now := time.Now()
-//	repo.UpdateAt = now
-//	_, err = engine.Get().Do("HMSET", redis.Args{}.Add(fmt.Sprintf("hm:%s:%s", funcs.BucketName(repo), repo.ID)).AddFlat(&repo)...)
-//	if err != nil {
-//		return
-//	}
-//	return
-//}
+func (repo *Repo) GetAll() (repos []*Repo, err error) {
+	_, err = engine.Get(repos)
+	return
+}

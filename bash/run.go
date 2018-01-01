@@ -8,9 +8,7 @@ import (
 
 func Run(dir, script string) (stdout []byte, err error) {
 	var isRepo bool
-	if isRepo, err = IsRepo(dir); err != nil {
-		return
-	} else if !isRepo {
+	if isRepo = IsRepo(dir); !isRepo {
 		err = errors.New(fmt.Sprintf("not a repo: %s", dir))
 		return
 	}

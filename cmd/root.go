@@ -9,6 +9,8 @@ import (
 	"github.com/tosone/mirror-repo/cmd/version"
 	"github.com/tosone/mirror-repo/cmd/web"
 	"github.com/tosone/mirror-repo/logging"
+	"github.com/tosone/mirror-repo/models"
+	"github.com/tosone/mirror-repo/services"
 )
 
 var cfgFile string
@@ -35,7 +37,7 @@ var scanCmd = &cobra.Command{
 	Long:  `search git repo in directory`,
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
-		scan.Initialize(args)
+		scan.Initialize(args...)
 	},
 }
 
@@ -69,7 +71,10 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalln("Cannot find the special config file.")
 	}
+
 	logging.Setting()
+	models.Connect()
+	services.Initialize()
 }
 
 func defaultConfig() {

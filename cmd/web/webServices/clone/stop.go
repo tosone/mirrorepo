@@ -1,11 +1,12 @@
 package clone
 
 import (
-	"log"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tosone/mirror-repo/cmd/web/webServices/errWebCode"
+	"github.com/tosone/mirror-repo/common/taskMgr"
+	"github.com/tosone/mirror-repo/logging"
 	"github.com/tosone/mirror-repo/models"
 )
 
@@ -17,16 +18,30 @@ func Stop(context *gin.Context) {
 	var err error
 
 	repo.Id, err = strconv.ParseInt(context.Param("id"), 10, 64)
+
 	if err != nil {
-		log.Fatal(err)
+		logging.Error(err.Error())
 		context.JSON(200, errWebCode.RepoIDNotValid)
 		return
 	}
 
 	repo, err = repo.Find()
+
 	if err != nil {
-		log.Fatal(err)
+		logging.Error(err.Error())
 		context.JSON(200, errWebCode.DatabaseErr)
+		return
+	}
+
+	err = taskMgr.Transport(taskMgr.ServiceCommand{
+		Task:        "clone",
+		Cmd:         "stop",
+		TaskContent: taskMgr.TaskContentClone{Repo: repo},
+	})
+
+	if err != nil {
+		logging.Error(err.Error())
+		context.JSON(200, errWebCode.ServiceErr)
 		return
 	}
 

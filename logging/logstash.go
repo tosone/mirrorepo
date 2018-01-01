@@ -160,6 +160,11 @@ func (i *inst) output() {
 		i.fields["_file"] = filepath.Base(file)
 		i.fields["_line"] = line
 	}
+
+	if _, file, line, ok := runtime.Caller(3); ok {
+		i.fields["_file"] = filepath.Base(file)
+		i.fields["_line"] = line
+	}
 	t := time.Now()
 	i.time = t.Format("15:04:05.000")
 	i.fields["__time"] = t.Format("01-02T15:04:05.000")

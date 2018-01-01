@@ -1,7 +1,9 @@
 package errCode
 
-import "github.com/kataras/go-errors"
+import (
+	"fmt"
+)
 
 var (
-	ErrNoSuchRecord = errors.New("no such a record")
+	ErrNoSuchRecord = fmt.Errorf("no such a record")
 )
