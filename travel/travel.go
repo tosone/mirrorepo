@@ -21,7 +21,7 @@ func travel() {
 		logging.Error(err.Error())
 	}
 	for _, repo := range repos {
-		if time.Since(repo.LastTraveled).Hours() > float64(repo.Travel) && repo.Status != defination.Waiting {
+		if repo.Status == defination.Error || (time.Since(repo.LastTraveled).Hours() > float64(repo.Travel) && repo.Status != defination.Waiting) {
 			err = taskMgr.Transport(taskMgr.ServiceCommand{
 				Task:        "clone",
 				Cmd:         "start",

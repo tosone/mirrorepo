@@ -6,6 +6,8 @@ import (
 	"sync"
 	"time"
 
+	"strings"
+
 	"github.com/Unknwon/com"
 	"github.com/tosone/mirror-repo/bash"
 	"github.com/tosone/mirror-repo/common/defination"
@@ -105,14 +107,20 @@ func clone(content taskMgr.TaskContentClone) {
 	currCloneId = repo.Id
 
 	var address = repo.Address
-	if content.Scan != "" {
-		address = content.Scan
-	}
+
 	var cloneInfo = &bash.CloneInfo{
 		Address:     address,
 		Destination: repo.RealPlace,
 	}
 	done := cloneInfo.Start()
+
+	if !strings.HasPrefix(address, "git") && !strings.HasPrefix(address, "http") && !strings.HasPrefix(address, "ssh") && com.IsDir(address) {
+		repo.Address, err = bash.GetRemoteUrl(address)
+		if err != nil {
+			return
+		}
+	}
+
 	bar := pb.StartNew(100)
 	defer bar.Finish()
 	var wg = new(sync.WaitGroup)

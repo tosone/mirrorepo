@@ -50,18 +50,13 @@ func Initialize(scanDir ...string) {
 			}
 			repoPreFix = append(repoPreFix, p)
 			var base = filepath.Base(p)
-			var address string
 
-			address, err = bash.GetRemoteUrl(p)
-			if err != nil {
-				return err
-			}
 			var repo = &models.Repo{
-				Address:   address,
+				Address:   p,
 				Status:    defination.Waiting,
 				Name:      base,
 				RealPlace: path.Join(viper.GetString("Setting.Repo"), base),
-				Travel:    viper.GetInt("Setting.Traveled"),
+				Travel:    viper.GetInt("Setting.Travel"),
 				SendEmail: false,
 			}
 			if _, err = repo.Create(); err != nil {
@@ -72,7 +67,7 @@ func Initialize(scanDir ...string) {
 			err = taskMgr.Transport(taskMgr.ServiceCommand{
 				Task:        "clone",
 				Cmd:         "start",
-				TaskContent: taskMgr.TaskContentClone{Repo: repo, Scan: p},
+				TaskContent: taskMgr.TaskContentClone{Repo: repo},
 			})
 
 			return err
@@ -84,5 +79,5 @@ func Initialize(scanDir ...string) {
 	}
 	clone.WaitAll()
 
-	fmt.Println("\nscan ending")
+	fmt.Printf("\nScan ending.\n\n")
 }

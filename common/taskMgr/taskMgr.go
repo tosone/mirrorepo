@@ -23,7 +23,6 @@ type ServiceCommand struct {
 // TaskContentClone 克隆任务
 type TaskContentClone struct {
 	Repo *models.Repo
-	Scan string
 }
 
 // TaskContentUpdate 克隆任务
