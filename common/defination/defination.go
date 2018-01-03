@@ -10,7 +10,6 @@ type RepoStatus string
 
 var (
 	Error            RepoStatus = "error"
-	Stopped          RepoStatus = "stopped"
 	Success          RepoStatus = "success"
 	Waiting          RepoStatus = "waiting"
 	CloneConecting   RepoStatus = "cloneConnecting"

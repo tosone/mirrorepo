@@ -1,7 +1,114 @@
 package update
 
+import (
+	"sync"
+	"time"
+
+	"github.com/Unknwon/com"
+	"github.com/tosone/mirror-repo/bash"
+	"github.com/tosone/mirror-repo/common/taskMgr"
+	"github.com/tosone/mirror-repo/logging"
+	"github.com/tosone/mirror-repo/models"
+)
+
 const serviceName = "update"
 
-func Initialize() {
+var updateLocker = new(sync.Mutex)
 
+var updateList = map[int64]*models.Repo{}
+
+func Initialize() {
+	channel := make(chan taskMgr.ServiceCommand, 1)
+	go func() {
+		for {
+			select {
+			case control := <-channel:
+				switch control.Cmd {
+				case "start":
+					for _, repo := range updateList {
+						if control.TaskContent.(taskMgr.TaskContentClone).Repo.Id == repo.Id {
+							return
+						}
+					}
+					updateList[control.TaskContent.(taskMgr.TaskContentClone).Repo.Id] = control.TaskContent.(taskMgr.TaskContentClone).Repo
+					updateLocker.Lock()
+					update(control.TaskContent.(taskMgr.TaskContentUpdate))
+					delete(updateList, control.TaskContent.(taskMgr.TaskContentClone).Repo.Id)
+					updateLocker.Unlock()
+				}
+			}
+		}
+	}()
+	taskMgr.Register(serviceName, channel)
+}
+
+// WaitAll ..
+func WaitAll() {
+	var done = make(chan bool)
+	go func() {
+		for {
+			if len(updateList) == 0 {
+				done <- true
+				break
+			}
+			time.Sleep(time.Second)
+		}
+	}()
+	<-done
+}
+
+func update(content taskMgr.TaskContentUpdate) {
+	var err error
+	var repo = content.Repo
+
+	if !com.IsDir(repo.RealPlace) {
+		logging.WithFields(logging.Fields{"repo": repo.RealPlace}).Error("Dir not found.")
+	}
+
+	defer func() {
+		var status = "success"
+		var msg = ""
+		if err != nil {
+			status = "error"
+			msg = err.Error()
+		}
+		log := &models.Log{
+			RepoId: repo.Id,
+			Cmd:    serviceName,
+			Status: status,
+			Msg:    msg,
+			Time:   time.Now(),
+		}
+		_, err = log.Create()
+		if err != nil {
+			logging.Error(err.Error())
+		}
+
+		_, err = repo.Update()
+		if err != nil {
+			logging.Error(err.Error())
+		}
+	}()
+
+	err = bash.Update(repo.RealPlace)
+	if err != nil {
+		logging.Error(err.Error())
+	}
+
+	repo.LastTraveled = time.Now()
+	detail(repo)
+}
+
+func detail(repo *models.Repo) {
+	var err error
+
+	repo.CommitCount, err = bash.CountCommits(repo.RealPlace)
+	if err != nil {
+		logging.Error(err.Error())
+	}
+
+	repo.Size, err = bash.RepoSize(repo.RealPlace)
+	if err != nil {
+		logging.Error(err.Error())
+	}
 }

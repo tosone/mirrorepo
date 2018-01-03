@@ -189,10 +189,17 @@ func stop(id int64) {
 
 func detail(repo *models.Repo) {
 	var err error
+
+	err = bash.RemoteReset(repo.RealPlace, repo.Address)
+	if err != nil {
+		logging.Error(err.Error())
+	}
+
 	repo.CommitCount, err = bash.CountCommits(repo.RealPlace)
 	if err != nil {
 		logging.Error(err.Error())
 	}
+
 	repo.Size, err = bash.RepoSize(repo.RealPlace)
 	if err != nil {
 		logging.Error(err.Error())

@@ -25,9 +25,9 @@ type TaskContentClone struct {
 	Repo *models.Repo
 }
 
-// TaskContentUpdate 克隆任务
+// TaskContentUpdate 更新任务
 type TaskContentUpdate struct {
-	SendMail bool `json:"sendMail"`
+	Repo *models.Repo
 }
 
 var taskList []TaskChannel
