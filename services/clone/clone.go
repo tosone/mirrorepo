@@ -74,6 +74,23 @@ func clone(content taskMgr.TaskContentClone) {
 	ctx, ctxCancel = context.WithCancel(context.Background())
 
 	defer func() {
+		var status = "success"
+		var msg = ""
+		if err != nil {
+			status = "error"
+			msg = err.Error()
+		}
+		log := &models.Log{
+			RepoId: repo.Id,
+			Cmd:    serviceName,
+			Status: status,
+			Msg:    msg,
+			Time:   time.Now(),
+		}
+		_, err = log.Create()
+		if err != nil {
+			logging.Error(err.Error())
+		}
 		_, err = repo.Update()
 		if err != nil {
 			logging.Error(err.Error())
@@ -150,14 +167,7 @@ func clone(content taskMgr.TaskContentClone) {
 	bar.Set(100)
 	bar.Prefix(repo.Name + " " + "Success")
 	repo.Status = defination.Success
-	repo.CommitCount, err = bash.CountCommits(repo.RealPlace)
-	if err != nil {
-		logging.Error(err.Error())
-	}
-	repo.Size, err = bash.RepoSize(repo.RealPlace)
-	if err != nil {
-		logging.Error(err.Error())
-	}
+	detail(repo)
 }
 
 func stop(id int64) {
@@ -169,6 +179,14 @@ func stop(id int64) {
 	}
 }
 
-func detail() {
-
+func detail(repo *models.Repo) {
+	var err error
+	repo.CommitCount, err = bash.CountCommits(repo.RealPlace)
+	if err != nil {
+		logging.Error(err.Error())
+	}
+	repo.Size, err = bash.RepoSize(repo.RealPlace)
+	if err != nil {
+		logging.Error(err.Error())
+	}
 }

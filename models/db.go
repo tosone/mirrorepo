@@ -34,7 +34,7 @@ func Connect() {
 	if err != nil {
 		logging.WithFields(logging.Fields{"engine": viper.GetString("Database.Engine")}).Panic(err.Error())
 	}
-	err = engine.Sync2(new(Repo))
+	err = engine.Sync2(new(Repo), new(Log))
 	if err != nil {
 		logging.Panic(err.Error())
 	}
