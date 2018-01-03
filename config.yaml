@@ -1,4 +1,5 @@
 Setting:
+  Name: Mirror-repo
   Repo: ./repo
   Travel: 8
 Web:
@@ -21,3 +22,9 @@ Log:
   MaxBackups: 3
   LocalTime: true
   Compress: true
+Mail:
+  EMail: i@tosiney.com
+  SMTP: smtp.mxhichina.com
+  Port: 465
+  Username: test@tosiney.com
+  Password: testpassword
