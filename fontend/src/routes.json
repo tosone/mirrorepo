@@ -1,0 +1,32 @@
+[
+  {
+    "path": "/",
+    "page": "./home/index.jsx",
+    "chunk": "main",
+    "data": {
+      "articles":
+        "GET https://gist.githubusercontent.com/koistya/a32919e847531320675764e7308b796a/raw/articles.json"
+    }
+  },
+  {
+    "path": "/login",
+    "page": "./login/index.jsx"
+  },
+  {
+    "path": "/register",
+    "page": "./register/index.jsx"
+  },
+  {
+    "path": "/error",
+    "page": "./error/index.jsx",
+    "chunk": "main"
+  },
+  {
+    "path": "/about",
+    "page": "./about/index.jsx"
+  },
+  {
+    "path": "/tasks/:status(pending|completed)?",
+    "page": "./home/index.jsx"
+  }
+]
