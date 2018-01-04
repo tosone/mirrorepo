@@ -3,11 +3,21 @@ GitHash    = main.GitHash=$(shell git rev-parse HEAD)
 Version    = main.Version=$(shell git describe --abbrev=0 --tags)
 Target     = mirror-repo
 
+UNAME_S    = $(shell uname -s)
+
+GOOS       = linux
+CC         = gcc
+Subfix     = linux
+
+ifeq ($(UNAME_S),Darwin)
+	GOOS   = darwin
+	CC     = clang
+	Subfix = mac 
+endif
+
 build: clean
 	mkdir release
-	CGO_ENABLED=1 CC=clang GOOS=darwin GOARCH=amd64 go build -v -o release/${Target}-mac -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}" main.go
-	#CGO_ENABLED=1 CC=gcc GOOS=linux GOARCH=amd64 go build -v -o release/${Target}-linux -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}" main.go
-	#CXX=arm-none-eabi-g++ CC=arm-none-eabi-gcc CGO_ENABLED=1 GOOS=linux GOARM=7 GOARCH=arm go build -v -o release/${Target}-linux -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}" main.go
+	CGO_ENABLED=1 CC=$(CC) GOOS=$(GOOS) GOARCH=amd64 go build -v -o release/${Target}-$(Subfix) -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}" main.go
 
 test: cleanTest
 	./release/mirror-repo-mac --config=config.yaml scan /Users/tosone/gocode/src/gopkg.in
