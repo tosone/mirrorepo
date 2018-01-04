@@ -30,7 +30,5 @@ func IsRepo(dir string) (isRepo bool) {
 
 	gitWorkDir := strings.TrimSpace(string(stdout))
 
-	//fmt.Println(dir, gitDir, gitWorkDir)
-
 	return gitDir == "true" || gitWorkDir == "true"
 }

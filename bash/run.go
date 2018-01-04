@@ -1,7 +1,6 @@
 package bash
 
 import (
-	"errors"
 	"fmt"
 	"os/exec"
 )
@@ -9,7 +8,7 @@ import (
 func Run(dir, script string) (stdout []byte, err error) {
 	var isRepo bool
 	if isRepo = IsRepo(dir); !isRepo {
-		err = errors.New(fmt.Sprintf("not a repo: %s", dir))
+		err = fmt.Errorf("not a repo: %s", dir)
 		return
 	}
 

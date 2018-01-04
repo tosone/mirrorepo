@@ -1,26 +1,21 @@
 package bash
 
 import (
-	"regexp"
-	"strconv"
-	"strings"
+	"fmt"
+	"os"
+	"path/filepath"
 )
 
 func RepoSize(dir string) (size uint64, err error) {
-	var stdout []byte
-	stdout, err = Run(dir, "git count-objects -v")
-	if err != nil {
+	if isRepo := IsRepo(dir); !isRepo {
+		err = fmt.Errorf("not a repo: %s", dir)
 		return
 	}
-	var reg = regexp.MustCompile(`size-pack:\s(\d+)`)
-	for _, str := range strings.Split(string(stdout), "\n") {
-		matches := reg.FindStringSubmatch(str)
-		if len(matches) == 2 {
-			size, err = strconv.ParseUint(matches[1], 10, 64)
-			if err != nil {
-				return
-			}
+	err = filepath.Walk(dir, func(_ string, info os.FileInfo, err error) error {
+		if !info.IsDir() {
+			size += uint64(info.Size())
 		}
-	}
+		return err
+	})
 	return
 }

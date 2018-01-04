@@ -102,11 +102,13 @@ func update(content taskMgr.TaskContentUpdate) {
 func detail(repo *models.Repo) {
 	var err error
 
+	repo.LastCommitCount = repo.CommitCount
 	repo.CommitCount, err = bash.CountCommits(repo.RealPlace)
 	if err != nil {
 		logging.Error(err.Error())
 	}
 
+	repo.LastSize = repo.Size
 	repo.Size, err = bash.RepoSize(repo.RealPlace)
 	if err != nil {
 		logging.Error(err.Error())
