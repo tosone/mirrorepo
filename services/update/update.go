@@ -113,4 +113,10 @@ func detail(repo *models.Repo) {
 	if err != nil {
 		logging.Error(err.Error())
 	}
+
+	repo.LastCommitId = repo.CommitId
+	repo.CommitId, err = bash.CommitId(repo.RealPlace)
+	if err != nil {
+		logging.Error(err.Error())
+	}
 }

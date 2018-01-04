@@ -28,3 +28,7 @@ func TestFileCount(t *testing.T) {
 func TestShortLog(t *testing.T) {
 	fmt.Println(ShortLog("/Users/tosone/awesome/bolt"))
 }
+
+func TestCommitId(t *testing.T) {
+	fmt.Println(CommitId("/Users/tosone/awesome/bolt"))
+}

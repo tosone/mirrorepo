@@ -206,4 +206,10 @@ func detail(repo *models.Repo) {
 		logging.Error(err.Error())
 	}
 	repo.LastSize = repo.Size
+
+	repo.CommitId, err = bash.CommitId(repo.RealPlace)
+	if err != nil {
+		logging.Error(err.Error())
+	}
+	repo.LastCommitId = repo.CommitId
 }
