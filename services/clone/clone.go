@@ -14,7 +14,7 @@ import (
 	"github.com/tosone/mirror-repo/common/taskMgr"
 	"github.com/tosone/mirror-repo/logging"
 	"github.com/tosone/mirror-repo/models"
-	"gopkg.in/cheggaaa/pb.v1"
+	"gopkg.in/cheggaaa/pb.v2"
 )
 
 const serviceName = "clone"
@@ -129,8 +129,8 @@ func clone(content taskMgr.TaskContentClone) {
 	go func() {
 		defer wg.Done()
 		for {
-			bar.Set(cloneInfo.Progress)
-			bar.Prefix(repo.Name + " " + cloneInfo.Status)
+			bar.Set(repo.Name + " " + cloneInfo.Status, cloneInfo.Progress)
+//			bar.Prefix(repo.Name + " " + cloneInfo.Status)
 			time.Sleep(time.Millisecond * 500)
 			repo.Status = defination.RepoStatus(cloneInfo.Status)
 			repo.Update()
@@ -166,14 +166,14 @@ func clone(content taskMgr.TaskContentClone) {
 
 	if doneResult != nil {
 		logging.Error(doneResult.Error())
-		bar.Set(100)
-		bar.Prefix(repo.Name + " " + "Error")
+		bar.Set(repo.Name + " " + "Error", 100)
+//		bar.Prefix(repo.Name + " " + "Error")
 		repo.Status = defination.Error
 		return
 	}
 
-	bar.Set(100)
-	bar.Prefix(repo.Name + " " + "Success")
+	bar.Set(repo.Name + " " + "Success", 100)
+//	bar.Prefix(repo.Name + " " + "Success")
 	repo.Status = defination.Success
 	detail(repo)
 }

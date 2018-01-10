@@ -1,5 +1,5 @@
-hash: 5b44cd941a9f3d04f2a73669e7b17ff6b08abc688d95457297c0dcff88f66755
-updated: 2018-01-10T14:40:36.984645331+08:00
+hash: 423523a14eadee737e19af8ea0d19dd24bd3013be060e43e19bf8a002b8a584c
+updated: 2018-01-10T15:14:39.048677+08:00
 imports:
 - name: github.com/fsnotify/fsnotify
   version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
@@ -92,8 +92,6 @@ imports:
   - unicode/norm
 - name: gopkg.in/alexcesaro/quotedprintable.v3
   version: 2caba252f4dc53eaf6b553000885530023f54623
-- name: gopkg.in/cheggaaa/pb.v1
-  version: c112833d014c77e8bde723fd0158e3156951639f
 - name: gopkg.in/cheggaaa/pb.v2
   version: c112833d014c77e8bde723fd0158e3156951639f
   subpackages:
