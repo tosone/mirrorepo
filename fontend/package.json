@@ -36,9 +36,13 @@
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
     "babel-preset-latest": "^6.24.1",
     "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
     "babel-preset-stage-1": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-preset-stage-3": "^6.24.1",
     "babel-register": "^6.26.0",
     "babel-runtime": "^6.26.0",
     "browser-sync": "^2.23.3",
@@ -55,32 +59,32 @@
     "firebase-tools": "^3.16.0",
     "front-matter": "^2.3.0",
     "highlight.js": "^9.12.0",
+    "html-loader": "^0.5.4",
+    "html-webpack-plugin": "^2.30.1",
     "json-loader": "^0.5.7",
     "markdown-it": "^8.4.0",
+    "markdown-loader": "^2.0.1",
     "mocha": "^4.1.0",
+    "node-sass": "^4.7.2",
     "path-to-regexp": "^2.1.0",
     "pixrem": "^4.0.1",
     "pleeease-filters": "^4.0.0",
     "react-hot-loader": "^3.1.3",
     "rimraf": "^2.6.2",
     "s3": "^4.4.0",
+    "sass-loader": "^6.0.6",
     "style-loader": "^0.19.1",
     "stylelint": "^8.4.0",
     "stylelint-config-standard": "^18.0.0",
     "url-loader": "^0.6.2",
     "webpack": "^3.10.0",
-    "webpack-dev-middleware": "^2.0.3",
+    "webpack-dev-middleware": "^2.0.4",
+    "webpack-dev-server": "^2.10.0",
     "webpack-hot-middleware": "^2.21.0"
   },
   "babel": {
-    "presets": [
-      "latest",
-      "stage-1",
-      "react"
-    ],
-    "plugins": [
-      "transform-runtime"
-    ]
+    "presets": ["latest", "stage-1", "react"],
+    "plugins": ["transform-runtime"]
   },
   "eslintConfig": {
     "parser": "babel-eslint",
@@ -106,10 +110,12 @@
     "lint": "npm run eslint && npm run stylelint",
     "test": "mocha --compilers js:babel-register",
     "test:watch": "mocha --compilers js:babel-register --reporter min --watch",
-    "build": "node tools/build.js",
+    "clientbuild": "node tools/build.js",
     "build:debug": "node tools/build.js --debug",
     "publish": "node tools/publish.js",
     "publish:debug": "node tools/publish.js --debug",
-    "start": "node tools/run.js"
+    "start": "node tools/run.js",
+    "build": "webpack --config ./webpack/webpack.prod.js --progress",
+    "dev": "webpack-dev-server --config ./webpack/webpack.dev.js --progress"
   }
 }

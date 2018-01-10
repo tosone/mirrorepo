@@ -2,7 +2,7 @@ package logging
 
 import (
 	"github.com/spf13/viper"
-	"gopkg.in/lumberjack.v2"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var logger = new(lumberjack.Logger)

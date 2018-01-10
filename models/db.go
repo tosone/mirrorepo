@@ -6,7 +6,7 @@ import (
 	"github.com/go-xorm/xorm"
 	"github.com/spf13/viper"
 	"github.com/tosone/mirror-repo/logging"
-	"gopkg.in/lumberjack.v2"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
