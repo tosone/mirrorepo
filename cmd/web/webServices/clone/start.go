@@ -33,7 +33,7 @@ func Start(context *gin.Context) {
 		Travel:    viper.GetInt("Setting.Travel"),
 	}
 
-	if _, err = repo.Create(); err != nil {
+	if err = repo.Create(); err != nil {
 		logging.Error(err.Error())
 		context.JSON(http.StatusOK, errWebCode.DatabaseErr)
 		return

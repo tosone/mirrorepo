@@ -15,7 +15,7 @@ const serviceName = "update"
 
 var updateLocker = new(sync.Mutex)
 
-var updateList = map[int64]*models.Repo{}
+var updateList = map[uint]*models.Repo{}
 
 func Initialize() {
 	channel := make(chan taskMgr.ServiceCommand, 1)
@@ -26,14 +26,14 @@ func Initialize() {
 				switch control.Cmd {
 				case "start":
 					for _, repo := range updateList {
-						if control.TaskContent.(taskMgr.TaskContentClone).Repo.Id == repo.Id {
+						if control.TaskContent.(taskMgr.TaskContentClone).Repo.ID == repo.ID {
 							return
 						}
 					}
-					updateList[control.TaskContent.(taskMgr.TaskContentClone).Repo.Id] = control.TaskContent.(taskMgr.TaskContentClone).Repo
+					updateList[control.TaskContent.(taskMgr.TaskContentClone).Repo.ID] = control.TaskContent.(taskMgr.TaskContentClone).Repo
 					updateLocker.Lock()
 					update(control.TaskContent.(taskMgr.TaskContentUpdate))
-					delete(updateList, control.TaskContent.(taskMgr.TaskContentClone).Repo.Id)
+					delete(updateList, control.TaskContent.(taskMgr.TaskContentClone).Repo.ID)
 					updateLocker.Unlock()
 				}
 			}
@@ -73,18 +73,17 @@ func update(content taskMgr.TaskContentUpdate) {
 			msg = err.Error()
 		}
 		log := &models.Log{
-			RepoId: repo.Id,
+			RepoID: repo.ID,
 			Cmd:    serviceName,
 			Status: status,
 			Msg:    msg,
 			Time:   time.Now(),
 		}
-		_, err = log.Create()
-		if err != nil {
+		if err = log.Create(); err != nil {
 			logging.Error(err.Error())
 		}
 
-		_, err = repo.Update()
+		err = repo.UpdateByID()
 		if err != nil {
 			logging.Error(err.Error())
 		}

@@ -14,6 +14,7 @@ func Rotate() {
 
 var logLevel Level
 
+// Setting set the logger output method
 func Setting() {
 	logger = &lumberjack.Logger{
 		Filename:   viper.GetString("Log.App"),

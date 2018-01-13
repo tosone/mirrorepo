@@ -3,10 +3,9 @@ package clone
 import (
 	"context"
 	"errors"
+	"strings"
 	"sync"
 	"time"
-
-	"strings"
 
 	"github.com/Unknwon/com"
 	"github.com/tosone/mirror-repo/bash"
@@ -21,9 +20,9 @@ const serviceName = "clone"
 
 var cloneLocker = new(sync.Mutex)
 
-var currCloneId int64
+var currCloneId uint
 
-var cloneList = map[int64]*models.Repo{}
+var cloneList = map[uint]*models.Repo{}
 
 func Initialize() {
 	channel := make(chan taskMgr.ServiceCommand, 1)
@@ -34,17 +33,17 @@ func Initialize() {
 				switch control.Cmd {
 				case "start":
 					for _, repo := range cloneList {
-						if control.TaskContent.(taskMgr.TaskContentClone).Repo.Id == repo.Id {
+						if control.TaskContent.(taskMgr.TaskContentClone).Repo.ID == repo.ID {
 							return
 						}
 					}
-					cloneList[control.TaskContent.(taskMgr.TaskContentClone).Repo.Id] = control.TaskContent.(taskMgr.TaskContentClone).Repo
+					cloneList[control.TaskContent.(taskMgr.TaskContentClone).Repo.ID] = control.TaskContent.(taskMgr.TaskContentClone).Repo
 					cloneLocker.Lock()
 					clone(control.TaskContent.(taskMgr.TaskContentClone))
-					delete(cloneList, control.TaskContent.(taskMgr.TaskContentClone).Repo.Id)
+					delete(cloneList, control.TaskContent.(taskMgr.TaskContentClone).Repo.ID)
 					cloneLocker.Unlock()
 				case "stop":
-					stop(control.TaskContent.(taskMgr.TaskContentClone).Repo.Id)
+					stop(control.TaskContent.(taskMgr.TaskContentClone).Repo.ID)
 				}
 			}
 		}
@@ -83,18 +82,16 @@ func clone(content taskMgr.TaskContentClone) {
 			msg = err.Error()
 		}
 		log := &models.Log{
-			RepoId: repo.Id,
+			RepoID: repo.ID,
 			Cmd:    serviceName,
 			Status: status,
 			Msg:    msg,
 			Time:   time.Now(),
 		}
-		_, err = log.Create()
-		if err != nil {
+		if err = log.Create(); err != nil {
 			logging.Error(err.Error())
 		}
-		_, err = repo.Update()
-		if err != nil {
+		if err = repo.UpdateByID(); err != nil {
 			logging.Error(err.Error())
 		}
 	}()
@@ -104,7 +101,7 @@ func clone(content taskMgr.TaskContentClone) {
 		return
 	}
 
-	currCloneId = repo.Id
+	currCloneId = repo.ID
 
 	var address = repo.Address
 
@@ -129,11 +126,11 @@ func clone(content taskMgr.TaskContentClone) {
 	go func() {
 		defer wg.Done()
 		for {
-			bar.Set(repo.Name + " " + cloneInfo.Status, cloneInfo.Progress)
-//			bar.Prefix(repo.Name + " " + cloneInfo.Status)
+			bar.Set(repo.Name+" "+cloneInfo.Status, cloneInfo.Progress)
+			//			bar.Prefix(repo.Name + " " + cloneInfo.Status)
 			time.Sleep(time.Millisecond * 500)
 			repo.Status = defination.RepoStatus(cloneInfo.Status)
-			repo.Update()
+			repo.UpdateByID()
 			select {
 			case <-signalDone:
 				return
@@ -166,19 +163,19 @@ func clone(content taskMgr.TaskContentClone) {
 
 	if doneResult != nil {
 		logging.Error(doneResult.Error())
-		bar.Set(repo.Name + " " + "Error", 100)
-//		bar.Prefix(repo.Name + " " + "Error")
+		bar.Set(repo.Name+" "+"Error", 100)
+		//		bar.Prefix(repo.Name + " " + "Error")
 		repo.Status = defination.Error
 		return
 	}
 
-	bar.Set(repo.Name + " " + "Success", 100)
-//	bar.Prefix(repo.Name + " " + "Success")
+	bar.Set(repo.Name+" "+"Success", 100)
+	//	bar.Prefix(repo.Name + " " + "Success")
 	repo.Status = defination.Success
 	detail(repo)
 }
 
-func stop(id int64) {
+func stop(id uint) {
 	if id != currCloneId {
 		return
 	}

@@ -6,6 +6,10 @@ import (
 
 	"github.com/tosone/mirror-repo/cmd"
 	"github.com/tosone/mirror-repo/cmd/version"
+
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // Version version

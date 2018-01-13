@@ -3,6 +3,8 @@ package version
 import (
 	"fmt"
 	"runtime"
+
+	"github.com/spf13/viper"
 )
 
 // Version version
@@ -21,7 +23,7 @@ func Setting(version, buildStamp, gitHash string) {
 }
 
 func Initialize() {
-	fmt.Printf("Mirror Repo %s %s/%s\n", Version, runtime.GOOS, runtime.GOARCH)
+	fmt.Printf("%s %s %s/%s\n", viper.GetString("Setting.Name"), Version, runtime.GOOS, runtime.GOARCH)
 	fmt.Printf("BuildDate: %s\n", BuildStamp)
 	fmt.Printf("BuildHash: %s\n", GitHash)
 }

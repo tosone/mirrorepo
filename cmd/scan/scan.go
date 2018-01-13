@@ -58,7 +58,7 @@ func Initialize(scanDir ...string) {
 				RealPlace: path.Join(viper.GetString("Setting.Repo"), base),
 				Travel:    viper.GetInt("Setting.Travel"),
 			}
-			if _, err = repo.Create(); err != nil {
+			if err = repo.Create(); err != nil {
 				logging.WithFields(logging.Fields{"repo": repo}).Error(err.Error())
 				return err
 			}

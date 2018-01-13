@@ -25,31 +25,32 @@ type Fields map[string]interface{}
 // inst ..
 type inst struct {
 	fields Fields
-	msg    string
+	trace  uint
+	msg    interface{}
 	time   string
 	level  Level
 }
 
 // Entry ..
 type Entry interface {
-	Panic(string)
-	Fatal(string)
-	Error(string)
-	Warn(string)
-	Info(string)
-	Debug(string)
-	WithFields(Fields) *inst
+	Panic(interface{})
+	Fatal(interface{})
+	Error(interface{})
+	Warn(interface{})
+	Info(interface{})
+	Debug(interface{})
+	withFields(Fields) *inst
 }
 
 // WithFields add more field
 func WithFields(fields Fields) (entry Entry) {
-	entry = &inst{fields: fields}
-	entry.WithFields(fields)
+	entry = &inst{fields: fields, trace: 2}
+	entry.withFields(fields)
 	return
 }
 
 // WithFields ..
-func (i *inst) WithFields(fields Fields) *inst {
+func (i *inst) withFields(fields Fields) *inst {
 	for k, v := range i.fields {
 		i.fields[k] = v
 	}
@@ -57,78 +58,78 @@ func (i *inst) WithFields(fields Fields) *inst {
 }
 
 // Panic ..
-func Panic(str string) {
+func Panic(str interface{}) {
 	i := &inst{}
 	i.Panic(str)
 }
 
 // Panic ..
-func (i *inst) Panic(str string) {
+func (i *inst) Panic(str interface{}) {
 	i.msg = str
 	i.level = PanicLevel
 	i.output()
 }
 
 // Fatal ..
-func Fatal(str string) {
+func Fatal(str interface{}) {
 	i := &inst{}
 	i.Fatal(str)
 }
 
 // Fatal ..
-func (i *inst) Fatal(str string) {
+func (i *inst) Fatal(str interface{}) {
 	i.msg = str
 	i.level = FatalLevel
 	i.output()
 }
 
 // Error ..
-func Error(str string) {
+func Error(str interface{}) {
 	i := &inst{}
 	i.Error(str)
 }
 
 // Error ..
-func (i *inst) Error(str string) {
+func (i *inst) Error(str interface{}) {
 	i.msg = str
 	i.level = ErrorLevel
 	i.output()
 }
 
 // Warn ..
-func Warn(str string) {
+func Warn(str interface{}) {
 	i := &inst{}
 	i.Warn(str)
 }
 
 // Warn ..
-func (i *inst) Warn(str string) {
+func (i *inst) Warn(str interface{}) {
 	i.msg = str
 	i.level = WarnLevel
 	i.output()
 }
 
 // Info ..
-func Info(str string) {
+func Info(str interface{}) {
 	i := &inst{}
 	i.Info(str)
 }
 
 // Info ..
-func (i *inst) Info(str string) {
+func (i *inst) Info(str interface{}) {
 	i.msg = str
 	i.level = InfoLevel
 	i.output()
 }
 
 // Debug ..
-func Debug(str string) {
+func Debug(str interface{}) {
 	i := &inst{}
 	i.Debug(str)
 }
 
 // Debug ..
-func (i *inst) Debug(str string) {
+func (i *inst) Debug(str interface{}) {
 	i.msg = str
 	i.level = DebugLevel
 	i.output()
@@ -138,7 +139,7 @@ func (i *inst) output() {
 	var color int
 	var err error
 	var waitWrite []byte
-	if i.level > logLevel {
+	if i.level < logLevel {
 		return
 	}
 	switch i.level {
@@ -156,15 +157,15 @@ func (i *inst) output() {
 	if i.fields == nil {
 		i.fields = Fields{}
 	}
-	if _, file, line, ok := runtime.Caller(2); ok {
+	var trace = 3
+	if i.trace == 2 {
+		trace = 2
+	}
+	if _, file, line, ok := runtime.Caller(trace); ok {
 		i.fields["_file"] = filepath.Base(file)
 		i.fields["_line"] = line
 	}
 
-	if _, file, line, ok := runtime.Caller(3); ok {
-		i.fields["_file"] = filepath.Base(file)
-		i.fields["_line"] = line
-	}
 	t := time.Now()
 	i.time = t.Format("15:04:05.000")
 	i.fields["__time"] = t.Format("01-02T15:04:05.000")
@@ -189,7 +190,7 @@ func (i *inst) output() {
 		}
 	}
 
-	fmt.Printf("\x1b[%dm%s\x1b[0m[%s] %-40s %s\n", color, levelText, i.time, i.msg, output)
+	fmt.Printf("\x1b[%dm%s\x1b[0m[%s] %-40v %s\n", color, levelText, i.time, i.msg, output)
 
 	i.fields["level"] = i.level.String()
 	i.fields["msg"] = i.msg
@@ -203,7 +204,7 @@ func (i *inst) output() {
 		Fatal("Cannot write log to file.")
 	}
 
-	if PanicLevel == i.level {
-		os.Exit(-1)
+	if PanicLevel == i.level || FatalLevel == i.level {
+		os.Exit(0)
 	}
 }

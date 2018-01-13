@@ -16,9 +16,9 @@ func Stop(context *gin.Context) {
 
 	var repo = &models.Repo{}
 	var err error
-
-	repo.Id, err = strconv.ParseInt(context.Param("id"), 10, 64)
-
+	var repoID uint64
+	repoID, err = strconv.ParseUint(context.Param("id"), 10, 0)
+	repo.ID = uint(repoID)
 	if err != nil {
 		logging.Error(err.Error())
 		context.JSON(200, errWebCode.RepoIDNotValid)
