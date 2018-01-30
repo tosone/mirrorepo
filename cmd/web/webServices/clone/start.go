@@ -7,11 +7,11 @@ import (
 	"github.com/Unknwon/com"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-	"github.com/tosone/mirror-repo/cmd/web/webServices/errWebCode"
-	"github.com/tosone/mirror-repo/common/defination"
-	"github.com/tosone/mirror-repo/common/taskMgr"
-	"github.com/tosone/mirror-repo/logging"
-	"github.com/tosone/mirror-repo/models"
+	"github.com/tosone/Mirror-repo/cmd/web/webServices/errWebCode"
+	"github.com/tosone/Mirror-repo/common/defination"
+	"github.com/tosone/Mirror-repo/common/taskMgr"
+	"github.com/tosone/Mirror-repo/logging"
+	"github.com/tosone/Mirror-repo/models"
 )
 
 func Start(context *gin.Context) {

@@ -5,12 +5,12 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/tosone/mirror-repo/cmd/scan"
-	"github.com/tosone/mirror-repo/cmd/version"
-	"github.com/tosone/mirror-repo/cmd/web"
-	"github.com/tosone/mirror-repo/logging"
-	"github.com/tosone/mirror-repo/models"
-	"github.com/tosone/mirror-repo/services"
+	"github.com/tosone/Mirror-repo/cmd/scan"
+	"github.com/tosone/Mirror-repo/cmd/version"
+	"github.com/tosone/Mirror-repo/cmd/web"
+	"github.com/tosone/Mirror-repo/logging"
+	"github.com/tosone/Mirror-repo/models"
+	"github.com/tosone/Mirror-repo/services"
 )
 
 var cfgFile string

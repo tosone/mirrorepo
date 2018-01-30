@@ -4,8 +4,8 @@ import (
 	"log"
 	"runtime"
 
-	"github.com/tosone/mirror-repo/cmd"
-	"github.com/tosone/mirror-repo/cmd/version"
+	"github.com/tosone/Mirror-repo/cmd"
+	"github.com/tosone/Mirror-repo/cmd/version"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"

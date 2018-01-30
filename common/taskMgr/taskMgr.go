@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/tosone/mirror-repo/models"
+	"github.com/tosone/Mirror-repo/models"
 )
 
 // TaskChannel 任务触发通道

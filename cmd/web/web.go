@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-	servicesClone "github.com/tosone/mirror-repo/cmd/web/webServices/clone"
-	"github.com/tosone/mirror-repo/logging"
+	servicesClone "github.com/tosone/Mirror-repo/cmd/web/webServices/clone"
+	"github.com/tosone/Mirror-repo/logging"
 )
 
 var err error

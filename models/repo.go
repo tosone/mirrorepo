@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/tosone/mirror-repo/common/defination"
+	"github.com/tosone/Mirror-repo/common/defination"
 )
 
 type Repo struct {

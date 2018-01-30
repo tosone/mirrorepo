@@ -3,18 +3,17 @@ package scan
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
-	"path"
-
 	"github.com/spf13/viper"
-	"github.com/tosone/mirror-repo/bash"
-	"github.com/tosone/mirror-repo/common/defination"
-	"github.com/tosone/mirror-repo/common/taskMgr"
-	"github.com/tosone/mirror-repo/logging"
-	"github.com/tosone/mirror-repo/models"
-	"github.com/tosone/mirror-repo/services/clone"
+	"github.com/tosone/Mirror-repo/bash"
+	"github.com/tosone/Mirror-repo/common/defination"
+	"github.com/tosone/Mirror-repo/common/taskMgr"
+	"github.com/tosone/Mirror-repo/logging"
+	"github.com/tosone/Mirror-repo/models"
+	"github.com/tosone/Mirror-repo/services/clone"
 )
 
 func Initialize(scanDir ...string) {

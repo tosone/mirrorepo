@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/Unknwon/com"
-	"github.com/tosone/mirror-repo/bash"
-	"github.com/tosone/mirror-repo/common/taskMgr"
-	"github.com/tosone/mirror-repo/logging"
-	"github.com/tosone/mirror-repo/models"
+	"github.com/tosone/Mirror-repo/bash"
+	"github.com/tosone/Mirror-repo/common/taskMgr"
+	"github.com/tosone/Mirror-repo/logging"
+	"github.com/tosone/Mirror-repo/models"
 )
 
 const serviceName = "update"

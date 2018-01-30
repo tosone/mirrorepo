@@ -11,7 +11,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/spf13/viper"
-	"github.com/tosone/mirror-repo/logging"
+	"github.com/tosone/Mirror-repo/logging"
 )
 
 var engine *gorm.DB
