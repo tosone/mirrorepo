@@ -1,7 +1,3 @@
-// Copyright 2017 Manu Martinez-Almeida.  All rights reserved.
-// Use of this source code is governed by a MIT style
-// license that can be found in the LICENSE file.
-
 package gin
 
 import (
@@ -10,18 +6,18 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"net/http/httptest"
 )
 
 func testRequest(t *testing.T, url string) {
 	resp, err := http.Get(url)
-	assert.NoError(t, err)
 	defer resp.Body.Close()
+	assert.NoError(t, err)
 
 	body, ioerr := ioutil.ReadAll(resp.Body)
 	assert.NoError(t, ioerr)
@@ -119,17 +115,17 @@ func TestWithHttptestWithAutoSelectedPort(t *testing.T) {
 	testRequest(t, ts.URL+"/example")
 }
 
-// func TestWithHttptestWithSpecifiedPort(t *testing.T) {
-// 	router := New()
-// 	router.GET("/example", func(c *Context) { c.String(http.StatusOK, "it worked") })
+func TestWithHttptestWithSpecifiedPort(t *testing.T) {
+	router := New()
+	router.GET("/example", func(c *Context) { c.String(http.StatusOK, "it worked") })
 
-// 	l, _ := net.Listen("tcp", ":8033")
-// 	ts := httptest.Server{
-// 		Listener: l,
-// 		Config:   &http.Server{Handler: router},
-// 	}
-// 	ts.Start()
-// 	defer ts.Close()
+	l, _ := net.Listen("tcp", ":8033")
+	ts := httptest.Server{
+		Listener: l,
+		Config:   &http.Server{Handler: router},
+	}
+	ts.Start()
+	defer ts.Close()
 
-// 	testRequest(t, "http://localhost:8033/example")
-// }
+	testRequest(t, "http://localhost:8033/example")
+}
