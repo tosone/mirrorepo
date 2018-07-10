@@ -5,7 +5,7 @@ import (
 
 	"github.com/tosone/mirrorepo/common/defination"
 	"github.com/tosone/mirrorepo/common/taskMgr"
-	"github.com/tosone/mirrorepo/logging"
+	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/models"
 )
 

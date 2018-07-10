@@ -1,8 +1,0 @@
-{
-  "rules": {
-    "global-require": "off",
-    "no-console": "off",
-    "max-len": ["error", { "code": 500 }]
-  },
-  "parser": "babel-eslint"
-}

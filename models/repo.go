@@ -40,7 +40,7 @@ func (repo *Repo) Find() (r *Repo, err error) {
 }
 
 func (repo *Repo) UpdateByID() error {
-	return engine.Where(repo.ID).Updates(repo).Error
+	return engine.Model(new(Repo)).Where(repo.ID).Updates(repo).Error
 }
 
 func (repo *Repo) GetAll() (repos []*Repo, err error) {

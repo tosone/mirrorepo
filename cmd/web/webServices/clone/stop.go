@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/tosone/mirrorepo/cmd/web/webServices/errWebCode"
 	"github.com/tosone/mirrorepo/common/taskMgr"
-	"github.com/tosone/mirrorepo/logging"
+	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/models"
 )
 

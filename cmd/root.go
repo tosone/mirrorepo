@@ -1,19 +1,17 @@
 package cmd
 
 import (
-	"log"
-
+	"github.com/Unknwon/com"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/tosone/GithubTraveler/common"
+	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/cmd/scan"
 	"github.com/tosone/mirrorepo/cmd/version"
 	"github.com/tosone/mirrorepo/cmd/web"
-	"github.com/tosone/mirrorepo/logging"
 	"github.com/tosone/mirrorepo/models"
 	"github.com/tosone/mirrorepo/services"
 )
-
-var cfgFile string
 
 // RootCmd represents the base command when called without any sub commands
 var RootCmd = &cobra.Command{
@@ -37,6 +35,7 @@ var scanCmd = &cobra.Command{
 	Long:  `search git repo in directory`,
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
+		initConfig()
 		scan.Initialize(args...)
 	},
 }
@@ -46,14 +45,16 @@ var webCmd = &cobra.Command{
 	Short: "start web service to see all the repo information detail",
 	Long:  `start web service to see all the repo information detail`,
 	Run: func(_ *cobra.Command, _ []string) {
+		initConfig()
 		web.Initialize()
 	},
 }
 
-func init() {
-	RootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "f", "/etc/mirrorepo/config.yaml", "config file")
+// config command line params
+var config string
 
-	cobra.OnInitialize(initConfig)
+func init() {
+	RootCmd.PersistentFlags().StringVarP(&config, "config", "f", "./config.yml", "config file")
 
 	RootCmd.AddCommand(scanCmd)
 	RootCmd.AddCommand(versionCmd)
@@ -61,23 +62,18 @@ func init() {
 }
 
 func initConfig() {
-	defaultConfig()
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
+	viper.SetConfigType("yaml")
+	viper.SetEnvPrefix(common.EnvPrefix)
+	if com.IsFile(config) {
+		viper.SetConfigFile(config)
 	} else {
-		viper.SetConfigFile("/etc/mirrorepo/config.yaml")
+		logging.Fatal("Cannot find config file. Please check.")
 	}
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalln("Cannot find the special config file.")
+		logging.Panic(err)
 	}
 
-	logging.Setting()
 	models.Connect()
 	services.Initialize()
-}
-
-func defaultConfig() {
-	viper.SetDefault("DatabaseEngine", "sqlite3")
-	viper.SetDefault("log", "err.log")
 }

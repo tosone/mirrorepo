@@ -7,7 +7,7 @@ import (
 	"github.com/Unknwon/com"
 	"github.com/tosone/mirrorepo/bash"
 	"github.com/tosone/mirrorepo/common/taskMgr"
-	"github.com/tosone/mirrorepo/logging"
+	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/models"
 )
 
