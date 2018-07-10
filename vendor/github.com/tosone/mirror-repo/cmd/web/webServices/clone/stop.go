@@ -4,10 +4,10 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tosone/Mirror-repo/cmd/web/webServices/errWebCode"
-	"github.com/tosone/Mirror-repo/common/taskMgr"
-	"github.com/tosone/Mirror-repo/logging"
-	"github.com/tosone/Mirror-repo/models"
+	"github.com/tosone/mirrorepo/cmd/web/webServices/errWebCode"
+	"github.com/tosone/mirrorepo/common/taskMgr"
+	"github.com/tosone/mirrorepo/logging"
+	"github.com/tosone/mirrorepo/models"
 )
 
 // Stop 停止

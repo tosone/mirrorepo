@@ -5,20 +5,20 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/tosone/Mirror-repo/cmd/scan"
-	"github.com/tosone/Mirror-repo/cmd/version"
-	"github.com/tosone/Mirror-repo/cmd/web"
-	"github.com/tosone/Mirror-repo/logging"
-	"github.com/tosone/Mirror-repo/models"
-	"github.com/tosone/Mirror-repo/services"
+	"github.com/tosone/mirrorepo/cmd/scan"
+	"github.com/tosone/mirrorepo/cmd/version"
+	"github.com/tosone/mirrorepo/cmd/web"
+	"github.com/tosone/mirrorepo/logging"
+	"github.com/tosone/mirrorepo/models"
+	"github.com/tosone/mirrorepo/services"
 )
 
 var cfgFile string
 
 // RootCmd represents the base command when called without any sub commands
 var RootCmd = &cobra.Command{
-	Use:   "Mirror-repo",
-	Short: "Mirror-repo sync repo to remote repo",
+	Use:   "mirrorepo",
+	Short: "mirrorepo sync repo to remote repo",
 	Long:  ``,
 }
 
@@ -51,7 +51,7 @@ var webCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "f", "/etc/mirror-repo/config.yaml", "config file")
+	RootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "f", "/etc/mirrorepo/config.yaml", "config file")
 
 	cobra.OnInitialize(initConfig)
 
@@ -65,7 +65,7 @@ func initConfig() {
 	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
 	} else {
-		viper.SetConfigFile("/etc/mirror-repo/config.yaml")
+		viper.SetConfigFile("/etc/mirrorepo/config.yaml")
 	}
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {

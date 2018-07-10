@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/Unknwon/com"
-	"github.com/tosone/Mirror-repo/bash"
-	"github.com/tosone/Mirror-repo/common/defination"
-	"github.com/tosone/Mirror-repo/common/taskMgr"
-	"github.com/tosone/Mirror-repo/logging"
-	"github.com/tosone/Mirror-repo/models"
+	"github.com/tosone/mirrorepo/bash"
+	"github.com/tosone/mirrorepo/common/defination"
+	"github.com/tosone/mirrorepo/common/taskMgr"
+	"github.com/tosone/mirrorepo/logging"
+	"github.com/tosone/mirrorepo/models"
 	"gopkg.in/cheggaaa/pb.v2"
 )
 

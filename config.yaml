@@ -1,5 +1,5 @@
 Setting:
-  Name: Mirror-repo
+  Name: mirrorepo
   Repo: ./repo # 仓库存储的路径
   Travel: 8 # 每隔八个小时，遍历所有的仓库更新至状态
 Web:

@@ -66,7 +66,7 @@ imports:
   version: 4c012f6dcd9546820e378d0bdda4d8fc772cdfea
 - name: github.com/spf13/viper
   version: 25b30aa063fc18e48662b86996252eabdcf2f0c7
-- name: github.com/tosone/mirror-repo
+- name: github.com/tosone/mirrorepo
   version: bf3ceaed44c0c0133413f1b9cc55620483716b61
   subpackages:
   - common/defination

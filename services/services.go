@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/tosone/Mirror-repo/services/clone"
-	"github.com/tosone/Mirror-repo/services/update"
+	"github.com/tosone/mirrorepo/services/clone"
+	"github.com/tosone/mirrorepo/services/update"
 )
 
 func Initialize() {

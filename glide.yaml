@@ -1,4 +1,4 @@
-package: github.com/tosone/Mirror-repo
+package: github.com/tosone/mirrorepo
 import:
 - package: github.com/Unknwon/com
   version: ~1.0.0

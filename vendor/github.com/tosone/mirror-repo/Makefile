@@ -1,7 +1,7 @@
 BuildStamp = main.BuildStamp=$(shell date '+%Y-%m-%d_%I:%M:%S%p')
 GitHash    = main.GitHash=$(shell git rev-parse HEAD)
 Version    = main.Version=$(shell git describe --abbrev=0 --tags)
-Target     = mirror-repo
+Target     = mirrorepo
 
 UNAME_S    = $(shell uname -s)
 
@@ -20,7 +20,7 @@ build: clean
 	CGO_ENABLED=1 CC=$(CC) GOOS=$(GOOS) GOARCH=amd64 go build -v -o release/${Target}-$(Subfix) -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}" main.go
 
 test: cleanTest
-	./release/mirror-repo-mac --config=config.yaml scan /Users/tosone/gocode/src/gopkg.in
+	./release/mirrorepo-mac --config=config.yaml scan /Users/tosone/gocode/src/gopkg.in
 
 authors:
 	echo "Authors\n=======\n\nProject's contributors:\n" > AUTHORS.md

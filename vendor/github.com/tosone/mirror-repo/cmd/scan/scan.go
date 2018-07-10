@@ -8,12 +8,12 @@ import (
 	"strings"
 
 	"github.com/spf13/viper"
-	"github.com/tosone/Mirror-repo/bash"
-	"github.com/tosone/Mirror-repo/common/defination"
-	"github.com/tosone/Mirror-repo/common/taskMgr"
-	"github.com/tosone/Mirror-repo/logging"
-	"github.com/tosone/Mirror-repo/models"
-	"github.com/tosone/Mirror-repo/services/clone"
+	"github.com/tosone/mirrorepo/bash"
+	"github.com/tosone/mirrorepo/common/defination"
+	"github.com/tosone/mirrorepo/common/taskMgr"
+	"github.com/tosone/mirrorepo/logging"
+	"github.com/tosone/mirrorepo/models"
+	"github.com/tosone/mirrorepo/services/clone"
 )
 
 func Initialize(scanDir ...string) {

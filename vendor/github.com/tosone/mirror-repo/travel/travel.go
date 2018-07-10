@@ -3,10 +3,10 @@ package travel
 import (
 	"time"
 
-	"github.com/tosone/mirror-repo/common/defination"
-	"github.com/tosone/mirror-repo/common/taskMgr"
-	"github.com/tosone/mirror-repo/logging"
-	"github.com/tosone/mirror-repo/models"
+	"github.com/tosone/mirrorepo/common/defination"
+	"github.com/tosone/mirrorepo/common/taskMgr"
+	"github.com/tosone/mirrorepo/logging"
+	"github.com/tosone/mirrorepo/models"
 )
 
 func Initialize() {

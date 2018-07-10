@@ -4,8 +4,8 @@ import (
 	"log"
 	"runtime"
 
-	"github.com/tosone/Mirror-repo/cmd"
-	"github.com/tosone/Mirror-repo/cmd/version"
+	"github.com/tosone/mirrorepo/cmd"
+	"github.com/tosone/mirrorepo/cmd/version"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
@@ -27,7 +27,7 @@ func init() {
 
 func main() {
 	if runtime.GOOS == "windows" {
-		log.Fatalln("Mirror-repo not support windows just linux.")
+		log.Fatalln("mirrorepo not support windows just linux.")
 	}
 
 	version.Setting(Version, BuildStamp, GitHash)
