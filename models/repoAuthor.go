@@ -4,6 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// RepoAuthor ..
 type RepoAuthor struct {
 	gorm.Model
 	RepoID      uint    // 外键

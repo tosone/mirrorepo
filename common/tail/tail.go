@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// Info ..
 type Info struct {
 	Status    string
 	Progress  int
@@ -18,6 +19,7 @@ type Info struct {
 	Filename  string
 }
 
+// Watch ..
 func (info *Info) Watch() {
 	info.ctx, info.ctxCancel = context.WithCancel(context.Background())
 	go func() {
@@ -38,6 +40,7 @@ func (info *Info) Watch() {
 	}()
 }
 
+// Stop ..
 func (info *Info) Stop() {
 	if info.ctxCancel != nil {
 		info.ctxCancel()

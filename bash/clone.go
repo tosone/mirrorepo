@@ -7,8 +7,11 @@ import (
 	"os/exec"
 	"regexp"
 	"strconv"
+
+	"github.com/tosone/logging"
 )
 
+// CloneInfo ..
 type CloneInfo struct {
 	Address     string
 	Status      string
@@ -17,6 +20,7 @@ type CloneInfo struct {
 	cmd         *exec.Cmd
 }
 
+// Start ..
 func (info *CloneInfo) Start() (channel chan error) {
 	var err error
 
@@ -74,7 +78,7 @@ func (info *CloneInfo) Start() (channel chan error) {
 					}
 				}
 			}
-			if reg, err := regexp.Compile(`Resolving\s+deltas:\s+(\d+)%[\w\W]+\)`); err != nil {
+			if reg, err = regexp.Compile(`Resolving\s+deltas:\s+(\d+)%[\w\W]+\)`); err != nil {
 				return
 			} else {
 				matches := reg.FindStringSubmatch(string(b))
@@ -96,12 +100,15 @@ func (info *CloneInfo) Start() (channel chan error) {
 		}
 	}()
 	go func() {
-		cmd.Wait()
+		if err := cmd.Wait(); err != nil {
+			logging.Error(err)
+		}
 		channel <- err
 	}()
 	return
 }
 
+// Stop ..
 func (info *CloneInfo) Stop() (err error) {
 	if _, err = os.FindProcess(info.cmd.Process.Pid); err != nil {
 		return

@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/Unknwon/com"
+	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/bash"
 	"github.com/tosone/mirrorepo/common/defination"
 	"github.com/tosone/mirrorepo/common/taskMgr"
-	"github.com/tosone/mirrorepo/logging"
 	"github.com/tosone/mirrorepo/models"
 	"gopkg.in/cheggaaa/pb.v2"
 )
@@ -20,10 +20,11 @@ const serviceName = "clone"
 
 var cloneLocker = new(sync.Mutex)
 
-var currCloneId uint
+var currCloneID uint
 
 var cloneList = map[uint]*models.Repo{}
 
+// Initialize ..
 func Initialize() {
 	channel := make(chan taskMgr.ServiceCommand, 1)
 	go func() {
@@ -101,7 +102,7 @@ func clone(content taskMgr.TaskContentClone) {
 		return
 	}
 
-	currCloneId = repo.ID
+	currCloneID = repo.ID
 
 	var address = repo.Address
 
@@ -112,7 +113,7 @@ func clone(content taskMgr.TaskContentClone) {
 	done := cloneInfo.Start()
 
 	if !strings.HasPrefix(address, "git") && !strings.HasPrefix(address, "http") && !strings.HasPrefix(address, "ssh") && com.IsDir(address) {
-		repo.Address, err = bash.GetRemoteUrl(address)
+		repo.Address, err = bash.GetRemoteURL(address)
 		if err != nil {
 			return
 		}
@@ -176,7 +177,7 @@ func clone(content taskMgr.TaskContentClone) {
 }
 
 func stop(id uint) {
-	if id != currCloneId {
+	if id != currCloneID {
 		return
 	}
 	if ctxCancel != nil {

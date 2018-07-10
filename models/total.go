@@ -2,6 +2,7 @@ package models
 
 import "time"
 
+// Total ..
 type Total struct {
 	Id       int64 `xorm:"pk autoincr"` // 主键
 	RepoNum  int

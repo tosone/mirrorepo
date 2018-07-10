@@ -2,7 +2,8 @@ package bash
 
 import "strings"
 
-func GetRemoteUrl(dir string) (url string, err error) {
+// GetRemoteURL ..
+func GetRemoteURL(dir string) (url string, err error) {
 	var stdout []byte
 	stdout, err = Run(dir, "git remote get-url origin")
 	if err != nil {

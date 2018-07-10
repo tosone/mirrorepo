@@ -9,12 +9,14 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
+// MailInfo ..
 type MailInfo struct {
 	Repo string
 	Time time.Time
 	Size uint64
 }
 
+// SendMail ..
 func (info MailInfo) SendMail() (err error) {
 	var tmpl *template.Template
 	var bodyBuf = new(bytes.Buffer)

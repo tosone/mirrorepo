@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// ShortLog ..
 func ShortLog(dir string) (authors map[string]string, err error) {
 	var stdout []byte
 	stdout, err = Run(dir, "git log --all --format='%an <%ae>' --no-merges")

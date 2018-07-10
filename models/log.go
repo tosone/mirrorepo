@@ -6,6 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// Log ..
 type Log struct {
 	gorm.Model
 	RepoID uint      // 外键

@@ -5,6 +5,7 @@ import (
 	"github.com/tosone/mirrorepo/services/update"
 )
 
+// Initialize ..
 func Initialize() {
 	clone.Initialize()
 	update.Initialize()

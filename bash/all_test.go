@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetRemoteUrl(t *testing.T) {
-	fmt.Println(GetRemoteUrl("/Users/tosone/awesome/bolt"))
+	fmt.Println(GetRemoteURL("/Users/tosone/awesome/bolt"))
 }
 
 func TestActiveDays(t *testing.T) {

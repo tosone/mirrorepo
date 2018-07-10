@@ -1,14 +1,23 @@
 language: go
 go:
-- 1.9.2
+  - 1.9.x
+  - 1.10.x
+before_install:
+  - sudo apt-get -qq update
+before_script:
+  - go get -u -v gopkg.in/alecthomas/gometalinter.v2
+  - gometalinter.v2 --install
+  - go get -u -v github.com/GoASTScanner/gas/cmd/gas/...
+  - go get -u -v github.com/client9/misspell/cmd/misspell
+  - go get -u -v github.com/karalabe/xgo
+  - go get -u -v github.com/tosone/release2github
+script:
+  - make
+notifications:
+  slack:
+    secure: SRYvevgInWT4AbpjoA1OBRANWjp1MBN5Je3aLicn0z1G6wjAKp8afbwI89OcReyFnjHvDdNBSAlcDt76eof62Y7G7OgF5jIJIsswEZUa4ESbPocMqZrDNhdsFvrSpTXn8x1HpCGypO4CKpyx9xgJwn8tQq8QZu11OCqu8a00BhVPKesCDMiPMTwPWyJ5foeqp/BauZB+1qQH9MLrlFb8tKZbljqsJOc+qwzj31+6pAX4MUc/620QAjChrAVzAieWQxfVwqiTKX8eCkoBA/jicmDsEryFwBmA5s+N6W2Y5j2ByXJc6hCKDdDzWcp9UDTzv9UeNidlnjUHFirrkHQiNQEtNbkCmOp1VgXtP+nP+j3dtdWYKxZc4TAlPKUXWc2QE1GJrM0DmoNFeDJ013LnwllpYdmOM2Y3jdN9rej3vdJEqwP7K9DxgRX0ckB9pmW9ydD4Gj24aL0si00xGh8wj9Vfwy6N7WnJmVe46IYGjD/5fVTFRvhfaOvecYXkzZ0+tgiVdRXllfef2RMK7mfF4SyrUp4c0MG1KrlYOzvOzmwKLRiAhxJnGnqLuNE1+lRPyt7t1aMdqJlYERgyzR6zOtdqtDXNIJHEFW6H/5KtzLMlrGV1NR5LbNdV5Z7EmVSg7jc4T05o3eZ6uHK9ognpQPK3qSvINZ8cGe9i05G6s1o=
 deploy:
-  provider: releases
-  skip_cleanup: true
-  api_key:
-    secure: ZZ+qJs4Dmnke5mLR2OP0IPBsTWZjeRjQlvSqZspQ5ABjsX+wzEaQqFNzLopBXth6b5cZzCv3ELiVZ2o5VDzki8lJ68IrHclu4/goUEXAFssAoKyjK9uF9glJIe5CiwbUhM6xvBxsDMnyLqkDSF8H+O4FGwKw01OJcZLVXlAQYOuIVHw1i7ICxAdJb9eydANVx1WVV6fS/Y0VzcJsNhqCJBDle7qu8mFsIqC4NR4oVdYulHp/Kgw2kMcu/xmrUu6qPTKq9B5dPdUULXnhEE+9TDGx69SkoZmy9Hp7hEyoTcYl+fiiHXZmsw5w8s05/fiLl4t3GBm+evhz/G3cNLSaLwcH2LyvnclK46klMtPTDo8qcCJ9vl5/cU+nEEDKQnhMMNDYVuq07ApuRVJDr+CJCOigAAWRRQJOukbyrQKREHEu9V9HBwy7eh5wURvfv+wYNjF7zqaqBQzYY37NjKjv3H980AlE5nN5unsM9uG/ki29qyj00CzxyM60YVTdoRWN6lIUwfLADj7B+inXU1O7ceuP2jUPA41+ivRBzRbDBSMp7lVhdPOklhvutkdtDZ8SSF8St2ptWkbvb4P/bl7ovlbVuwdRl49uGHMlDrRaNwga47aYsqM9x6FAzp4VLyXIwac9lwSbF5na7SUu/wpsLjqAEzOVd0OmzTFy7q9bUvY=
-  file:
-    - release/morror-repo-mac
-    - release/morror-repo-linux
+  provider: script
+  script: make release && release2github create
   on:
-    branch: master
     tags: true

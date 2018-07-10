@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 )
 
+// RepoSize ..
 func RepoSize(dir string) (size uint64, err error) {
 	if isRepo := IsRepo(dir); !isRepo {
 		err = fmt.Errorf("not a repo: %s", dir)

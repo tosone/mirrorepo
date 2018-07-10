@@ -4,6 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// User ..
 type User struct {
 	gorm.Model
 	Name         string // 本地存储所用的名字

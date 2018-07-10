@@ -7,6 +7,7 @@ import (
 	"github.com/tosone/mirrorepo/common/defination"
 )
 
+// Repo ..
 type Repo struct {
 	gorm.Model
 	Address         string                // 仓库地址
@@ -39,10 +40,12 @@ func (repo *Repo) Find() (r *Repo, err error) {
 	return
 }
 
+// UpdateByID ..
 func (repo *Repo) UpdateByID() error {
-	return engine.Where(repo.ID).Updates(repo).Error
+	return engine.Model(new(Repo)).Where(repo.ID).Updates(repo).Error
 }
 
+// GetAll ..
 func (repo *Repo) GetAll() (repos []*Repo, err error) {
 	err = engine.Find(repos).Error
 	return
