@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/Unknwon/com"
+	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/bash"
 	"github.com/tosone/mirrorepo/common/taskMgr"
-	"github.com/tosone/mirrorepo/logging"
 	"github.com/tosone/mirrorepo/models"
 )
 
@@ -17,6 +17,7 @@ var updateLocker = new(sync.Mutex)
 
 var updateList = map[uint]*models.Repo{}
 
+// Initialize ..
 func Initialize() {
 	channel := make(chan taskMgr.ServiceCommand, 1)
 	go func() {

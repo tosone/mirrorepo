@@ -8,6 +8,7 @@ import (
 	"github.com/Unknwon/com"
 )
 
+// IsRepo ..
 func IsRepo(dir string) (isRepo bool) {
 	var stdout []byte
 	var cmd *exec.Cmd

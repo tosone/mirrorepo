@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// CountCommits ..
 func CountCommits(dir string) (count uint64, err error) {
 	var stdout []byte
 	stdout, err = Run(dir, "git rev-list --all --count")

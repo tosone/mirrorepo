@@ -8,16 +8,19 @@ import (
 	"strings"
 
 	"github.com/spf13/viper"
+	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/bash"
 	"github.com/tosone/mirrorepo/common/defination"
 	"github.com/tosone/mirrorepo/common/taskMgr"
-	"github.com/tosone/mirrorepo/logging"
 	"github.com/tosone/mirrorepo/models"
 	"github.com/tosone/mirrorepo/services/clone"
 )
 
 func Initialize(scanDir ...string) {
 	var err error
+	if err = models.Connect(); err != nil {
+		logging.Fatal(err)
+	}
 	for _, dir := range scanDir {
 		var repoPreFix []string
 		err = filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
@@ -33,7 +36,7 @@ func Initialize(scanDir ...string) {
 				return nil
 			}
 
-			if strings.Index(p, ".git") != -1 {
+			if !strings.Contains(p, ".git") {
 				return nil
 			}
 
@@ -61,7 +64,6 @@ func Initialize(scanDir ...string) {
 				logging.WithFields(logging.Fields{"repo": repo}).Error(err.Error())
 				return err
 			}
-
 			err = taskMgr.Transport(taskMgr.ServiceCommand{
 				Task:        "clone",
 				Cmd:         "start",
@@ -73,7 +75,7 @@ func Initialize(scanDir ...string) {
 	}
 
 	if err != nil {
-		logging.Panic(err.Error())
+		logging.Panic(err)
 	}
 	clone.WaitAll()
 

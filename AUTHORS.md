@@ -1,4 +1,4 @@
- Authors
+Authors
 =======
 
 Project's contributors:

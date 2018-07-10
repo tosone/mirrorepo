@@ -5,6 +5,7 @@ import (
 	"os/exec"
 )
 
+// Run ..
 func Run(dir, script string) (stdout []byte, err error) {
 	var isRepo bool
 	if isRepo = IsRepo(dir); !isRepo {
