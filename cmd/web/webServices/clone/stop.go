@@ -5,14 +5,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/tosone/logging"
-	"github.com/tosone/mirrorepo/cmd/web/webServices/errWebCode"
-	"github.com/tosone/mirrorepo/common/taskMgr"
+	"github.com/tosone/mirrorepo/cmd/web/webServices/errwebcode"
+	"github.com/tosone/mirrorepo/common/taskmgr"
 	"github.com/tosone/mirrorepo/models"
 )
 
 // Stop 停止
 func Stop(context *gin.Context) {
-	context.JSON(200, errWebCode.Normal)
+	context.JSON(200, errwebcode.Normal)
 
 	var err error
 	var repo = &models.Repo{}
@@ -22,7 +22,7 @@ func Stop(context *gin.Context) {
 	repo.ID = uint(repoID)
 	if err != nil {
 		logging.Error(err.Error())
-		context.JSON(200, errWebCode.RepoIDNotValid)
+		context.JSON(200, errwebcode.RepoIDNotValid)
 		return
 	}
 
@@ -30,23 +30,23 @@ func Stop(context *gin.Context) {
 
 	if err != nil {
 		logging.Error(err.Error())
-		context.JSON(200, errWebCode.DatabaseErr)
+		context.JSON(200, errwebcode.DatabaseErr)
 		return
 	}
 
-	err = taskMgr.Transport(taskMgr.ServiceCommand{
+	err = taskmgr.Transport(taskmgr.ServiceCommand{
 		Task:        "clone",
 		Cmd:         "stop",
-		TaskContent: taskMgr.TaskContentClone{Repo: repo},
+		TaskContent: taskmgr.TaskContentClone{Repo: repo},
 	})
 
 	if err != nil {
 		logging.Error(err.Error())
-		context.JSON(200, errWebCode.ServiceErr)
+		context.JSON(200, errwebcode.ServiceErr)
 		return
 	}
 
 	if repo.Status != "receiving" {
-		context.JSON(200, errWebCode.CloneCannotBeStopped)
+		context.JSON(200, errwebcode.CloneCannotBeStopped)
 	}
 }

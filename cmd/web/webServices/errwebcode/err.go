@@ -1,4 +1,4 @@
-package errWebCode
+package errwebcode
 
 import (
 	"github.com/gin-gonic/gin"

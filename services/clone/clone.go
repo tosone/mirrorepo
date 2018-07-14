@@ -11,7 +11,7 @@ import (
 	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/bash"
 	"github.com/tosone/mirrorepo/common/defination"
-	"github.com/tosone/mirrorepo/common/taskMgr"
+	"github.com/tosone/mirrorepo/common/taskmgr"
 	"github.com/tosone/mirrorepo/models"
 	"gopkg.in/cheggaaa/pb.v2"
 )
@@ -26,27 +26,27 @@ var cloneList = map[uint]*models.Repo{}
 
 // Initialize ..
 func Initialize() {
-	channel := make(chan taskMgr.ServiceCommand, 1)
+	channel := make(chan taskmgr.ServiceCommand, 1)
 	go func() {
 		for control := range channel {
 			switch control.Cmd {
 			case "start":
 				for _, repo := range cloneList {
-					if control.TaskContent.(taskMgr.TaskContentClone).Repo.ID == repo.ID {
+					if control.TaskContent.(taskmgr.TaskContentClone).Repo.ID == repo.ID {
 						return
 					}
 				}
-				cloneList[control.TaskContent.(taskMgr.TaskContentClone).Repo.ID] = control.TaskContent.(taskMgr.TaskContentClone).Repo
+				cloneList[control.TaskContent.(taskmgr.TaskContentClone).Repo.ID] = control.TaskContent.(taskmgr.TaskContentClone).Repo
 				cloneLocker.Lock()
-				clone(control.TaskContent.(taskMgr.TaskContentClone))
-				delete(cloneList, control.TaskContent.(taskMgr.TaskContentClone).Repo.ID)
+				clone(control.TaskContent.(taskmgr.TaskContentClone))
+				delete(cloneList, control.TaskContent.(taskmgr.TaskContentClone).Repo.ID)
 				cloneLocker.Unlock()
 			case "stop":
-				stop(control.TaskContent.(taskMgr.TaskContentClone).Repo.ID)
+				stop(control.TaskContent.(taskmgr.TaskContentClone).Repo.ID)
 			}
 		}
 	}()
-	taskMgr.Register(serviceName, channel)
+	taskmgr.Register(serviceName, channel)
 }
 
 // WaitAll ..
@@ -67,7 +67,7 @@ func WaitAll() {
 var ctx context.Context
 var ctxCancel context.CancelFunc
 
-func clone(content taskMgr.TaskContentClone) {
+func clone(content taskmgr.TaskContentClone) {
 	var err error
 	var repo = content.Repo
 

@@ -1,4 +1,4 @@
-package taskMgr
+package taskmgr
 
 import (
 	"fmt"
