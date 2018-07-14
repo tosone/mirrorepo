@@ -16,6 +16,7 @@ import (
 	"github.com/tosone/mirrorepo/services/clone"
 )
 
+// Initialize ..
 func Initialize(scanDir ...string) {
 	var err error
 	if err = models.Connect(); err != nil {

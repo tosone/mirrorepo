@@ -28,30 +28,28 @@ var cloneList = map[uint]*models.Repo{}
 func Initialize() {
 	channel := make(chan taskMgr.ServiceCommand, 1)
 	go func() {
-		for {
-			select {
-			case control := <-channel:
-				switch control.Cmd {
-				case "start":
-					for _, repo := range cloneList {
-						if control.TaskContent.(taskMgr.TaskContentClone).Repo.ID == repo.ID {
-							return
-						}
+		for control := range channel {
+			switch control.Cmd {
+			case "start":
+				for _, repo := range cloneList {
+					if control.TaskContent.(taskMgr.TaskContentClone).Repo.ID == repo.ID {
+						return
 					}
-					cloneList[control.TaskContent.(taskMgr.TaskContentClone).Repo.ID] = control.TaskContent.(taskMgr.TaskContentClone).Repo
-					cloneLocker.Lock()
-					clone(control.TaskContent.(taskMgr.TaskContentClone))
-					delete(cloneList, control.TaskContent.(taskMgr.TaskContentClone).Repo.ID)
-					cloneLocker.Unlock()
-				case "stop":
-					stop(control.TaskContent.(taskMgr.TaskContentClone).Repo.ID)
 				}
+				cloneList[control.TaskContent.(taskMgr.TaskContentClone).Repo.ID] = control.TaskContent.(taskMgr.TaskContentClone).Repo
+				cloneLocker.Lock()
+				clone(control.TaskContent.(taskMgr.TaskContentClone))
+				delete(cloneList, control.TaskContent.(taskMgr.TaskContentClone).Repo.ID)
+				cloneLocker.Unlock()
+			case "stop":
+				stop(control.TaskContent.(taskMgr.TaskContentClone).Repo.ID)
 			}
 		}
 	}()
 	taskMgr.Register(serviceName, channel)
 }
 
+// WaitAll ..
 func WaitAll() {
 	var done = make(chan bool)
 	go func() {
@@ -74,6 +72,11 @@ func clone(content taskMgr.TaskContentClone) {
 	var repo = content.Repo
 
 	ctx, ctxCancel = context.WithCancel(context.Background())
+	defer func() {
+		if ctxCancel != nil {
+			ctxCancel()
+		}
+	}()
 
 	defer func() {
 		var status = "success"
@@ -131,7 +134,9 @@ func clone(content taskMgr.TaskContentClone) {
 			//			bar.Prefix(repo.Name + " " + cloneInfo.Status)
 			time.Sleep(time.Millisecond * 500)
 			repo.Status = defination.RepoStatus(cloneInfo.Status)
-			repo.UpdateByID()
+			if err = repo.UpdateByID(); err != nil {
+				logging.Error(err)
+			}
 			select {
 			case <-signalDone:
 				return
@@ -188,26 +193,22 @@ func stop(id uint) {
 func detail(repo *models.Repo) {
 	var err error
 
-	err = bash.RemoteReset(repo.RealPlace, repo.Address)
-	if err != nil {
-		logging.Error(err.Error())
+	if err = bash.RemoteReset(repo.RealPlace, repo.Address); err != nil {
+		logging.Error(err)
 	}
 
-	repo.CommitCount, err = bash.CountCommits(repo.RealPlace)
-	if err != nil {
-		logging.Error(err.Error())
+	if repo.CommitCount, err = bash.CountCommits(repo.RealPlace); err != nil {
+		logging.Error(err)
 	}
 	repo.LastCommitCount = repo.CommitCount
 
-	repo.Size, err = bash.RepoSize(repo.RealPlace)
-	if err != nil {
-		logging.Error(err.Error())
+	if repo.Size, err = bash.RepoSize(repo.RealPlace); err != nil {
+		logging.Error(err)
 	}
 	repo.LastSize = repo.Size
 
-	repo.CommitId, err = bash.CommitId(repo.RealPlace)
-	if err != nil {
-		logging.Error(err.Error())
+	if repo.CommitID, err = bash.CommitID(repo.RealPlace); err != nil {
+		logging.Error(err)
 	}
-	repo.LastCommitId = repo.CommitId
+	repo.LastCommitID = repo.CommitID
 }

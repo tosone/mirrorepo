@@ -12,9 +12,9 @@ else
 endif
 
 ${OSName}: clean
-	GOOS=$@ GOARCH=amd64 go build -v -o release/${Target}-$@${Suffix} -ldflags "-s -w -X main.BuildStamp=${BuildStamp} -X main.GitHash=${GitHash} -X main.Version=${Version}"
+	GOOS=$@ go build -v -o release/${Target}-$@${Suffix} -ldflags "-s -w -X main.BuildStamp=${BuildStamp} -X main.GitHash=${GitHash} -X main.Version=${Version}"
 
-test: cleanTest
+test: clean_test
 	release/${Target}-${OSName}${Suffix} --config=config.yaml scan /Users/tosone/gocode/src/gopkg.in
 
 authors:
@@ -22,10 +22,10 @@ authors:
 	git log --raw | grep "^Author: " | cut -d ' ' -f2- | cut -d '<' -f1 | sed 's/^/- /' | sort | uniq >> AUTHORS.md
 
 clean:
-	-rm -rf release
+	$(RM) -r release
 
 lint:
-	gometalinter ./...
+	gometalinter.v2 ./...
 
-cleanTest:
-	-rm -rf *.log mirror.db repo
+clean_test:
+	$(RM) -r *.log mirror.db repo

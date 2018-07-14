@@ -1,5 +1,6 @@
 package travel
 
+// Initialize ..
 func Initialize() {
 
 }

@@ -13,8 +13,8 @@ func Run(dir, script string) (stdout []byte, err error) {
 		return
 	}
 
-	var cmd *exec.Cmd
-	cmd = exec.Command("sh", "-c", script)
+	/* #nosec */
+	cmd := exec.Command("/bin/sh", "-c", script)
 	cmd.Dir = dir
 
 	stdout, err = cmd.Output()
