@@ -17,14 +17,16 @@ func IsRepo(dir string) (isRepo bool) {
 		return
 	}
 
-	cmd = exec.Command("sh", "-c", "git rev-parse --is-inside-git-dir")
+	/* #nosec */
+	cmd = exec.Command("/bin/sh", "-c", "git rev-parse --is-inside-git-dir")
 	cmd.Dir = dir
 
 	stdout, _ = cmd.Output()
 
 	gitDir := strings.TrimSpace(string(stdout))
 
-	cmd = exec.Command("sh", "-c", "git rev-parse --is-inside-work-tree")
+	/* #nosec */
+	cmd = exec.Command("/bin/sh", "-c", "git rev-parse --is-inside-work-tree")
 	cmd.Dir = dir
 
 	stdout, _ = cmd.Output()

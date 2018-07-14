@@ -28,6 +28,7 @@ func (info *Info) Watch() {
 			case <-info.ctx.Done():
 				return
 			default:
+				/* #nosec */
 				if out, err := exec.Command("cat", "-e", info.Filename).Output(); err != nil {
 					log.Println(err)
 				} else {

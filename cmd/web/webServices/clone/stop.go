@@ -14,8 +14,9 @@ import (
 func Stop(context *gin.Context) {
 	context.JSON(200, errWebCode.Normal)
 
-	var repo = &models.Repo{}
 	var err error
+	var repo = &models.Repo{}
+
 	var repoID uint64
 	repoID, err = strconv.ParseUint(context.Param("id"), 10, 0)
 	repo.ID = uint(repoID)
@@ -48,6 +49,4 @@ func Stop(context *gin.Context) {
 	if repo.Status != "receiving" {
 		context.JSON(200, errWebCode.CloneCannotBeStopped)
 	}
-
-	return
 }

@@ -29,6 +29,6 @@ func TestShortLog(t *testing.T) {
 	fmt.Println(ShortLog("/Users/tosone/awesome/bolt"))
 }
 
-func TestCommitId(t *testing.T) {
-	fmt.Println(CommitId("/Users/tosone/awesome/bolt"))
+func TestCommitID(t *testing.T) {
+	fmt.Println(CommitID("/Users/tosone/awesome/bolt"))
 }

@@ -6,16 +6,26 @@ type WebServiceReturn struct {
 	Msg  string
 }
 
+// RepoStatus ..
 type RepoStatus string
 
 var (
-	Error            RepoStatus = "error"
-	Success          RepoStatus = "success"
-	Waiting          RepoStatus = "waiting"
-	CloneConecting   RepoStatus = "cloneConnecting"
-	CloneReceiving   RepoStatus = "cloneReceiving"
-	CloneResolving   RepoStatus = "cloneResolving"
+	// Error ..
+	Error RepoStatus = "error"
+	// Success ..
+	Success RepoStatus = "success"
+	// Waiting ..
+	Waiting RepoStatus = "waiting"
+	// CloneConecting ..
+	CloneConecting RepoStatus = "cloneConnecting"
+	// CloneReceiving ..
+	CloneReceiving RepoStatus = "cloneReceiving"
+	// CloneResolving ..
+	CloneResolving RepoStatus = "cloneResolving"
+	// UpdateConnecting ..
 	UpdateConnecting RepoStatus = "updateConnecting"
-	UpdateReceiving  RepoStatus = "updateReceiving"
-	UpdateResolving  RepoStatus = "updateResolving"
+	// UpdateReceiving ..
+	UpdateReceiving RepoStatus = "updateReceiving"
+	// UpdateResolving ..
+	UpdateResolving RepoStatus = "updateResolving"
 )

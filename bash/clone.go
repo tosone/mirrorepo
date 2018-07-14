@@ -30,6 +30,7 @@ func (info *CloneInfo) Start() (channel chan error) {
 		err = errors.New("clone info is not correct")
 	}
 
+	/* #nosec */
 	cmd := exec.Command("git", "clone", "--bare", "--progress", info.Address, info.Destination)
 
 	var stderrPipe io.ReadCloser
@@ -62,31 +63,11 @@ func (info *CloneInfo) Start() (channel chan error) {
 			var reg *regexp.Regexp
 			if reg, err = regexp.Compile(`Receiving\s+objects:\s+(\d+)%[\w\W]+`); err != nil {
 				return
-			} else {
-				matches := reg.FindStringSubmatch(string(b))
-				if len(matches) == 2 {
-					if info.Status != "Resolving" {
-						info.Status = "Receiving"
-						var num int
-						if num, err = strconv.Atoi(matches[1]); err == nil {
-							if num > info.Progress {
-								info.Progress = num
-							}
-						} else {
-							return
-						}
-					}
-				}
 			}
-			if reg, err = regexp.Compile(`Resolving\s+deltas:\s+(\d+)%[\w\W]+\)`); err != nil {
-				return
-			} else {
-				matches := reg.FindStringSubmatch(string(b))
-				if len(matches) == 2 {
-					if info.Status == "Receiving" {
-						info.Status = "Resolving"
-						info.Progress = 0
-					}
+			matches := reg.FindStringSubmatch(string(b))
+			if len(matches) == 2 {
+				if info.Status != "Resolving" {
+					info.Status = "Receiving"
 					var num int
 					if num, err = strconv.Atoi(matches[1]); err == nil {
 						if num > info.Progress {
@@ -97,10 +78,29 @@ func (info *CloneInfo) Start() (channel chan error) {
 					}
 				}
 			}
+
+			if reg, err = regexp.Compile(`Resolving\s+deltas:\s+(\d+)%[\w\W]+\)`); err != nil {
+				return
+			}
+			matches = reg.FindStringSubmatch(string(b))
+			if len(matches) == 2 {
+				if info.Status == "Receiving" {
+					info.Status = "Resolving"
+					info.Progress = 0
+				}
+				var num int
+				if num, err = strconv.Atoi(matches[1]); err == nil {
+					if num > info.Progress {
+						info.Progress = num
+					}
+				} else {
+					return
+				}
+			}
 		}
 	}()
 	go func() {
-		if err := cmd.Wait(); err != nil {
+		if err = cmd.Wait(); err != nil {
 			logging.Error(err)
 		}
 		channel <- err
@@ -112,10 +112,9 @@ func (info *CloneInfo) Start() (channel chan error) {
 func (info *CloneInfo) Stop() (err error) {
 	if _, err = os.FindProcess(info.cmd.Process.Pid); err != nil {
 		return
-	} else {
-		if err = info.cmd.Process.Kill(); err != nil {
-			return
-		}
+	}
+	if err = info.cmd.Process.Kill(); err != nil {
+		return
 	}
 	return
 }
