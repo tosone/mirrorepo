@@ -9,15 +9,15 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-// MailInfo ..
-type MailInfo struct {
+// Info ..
+type Info struct {
 	Repo string
 	Time time.Time
 	Size uint64
 }
 
 // SendMail ..
-func (info MailInfo) SendMail() (err error) {
+func (info Info) SendMail() (err error) {
 	var tmpl *template.Template
 	var bodyBuf = new(bytes.Buffer)
 
@@ -26,7 +26,9 @@ func (info MailInfo) SendMail() (err error) {
 		return
 	}
 
-	tmpl.Execute(bodyBuf, info)
+	if err = tmpl.Execute(bodyBuf, info); err != nil {
+		return
+	}
 
 	msg := gomail.NewMessage()
 	msg.SetAddressHeader("From", "test@tosiney.com", viper.GetString("Setting.Name"))

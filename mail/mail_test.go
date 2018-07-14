@@ -6,7 +6,7 @@ import (
 )
 
 func TestSendMail(t *testing.T) {
-	var a = MailInfo{
+	var a = Info{
 		Repo: "repo",
 		Size: 11,
 		Time: time.Now(),

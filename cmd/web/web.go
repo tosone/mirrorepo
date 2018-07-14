@@ -11,6 +11,7 @@ import (
 
 var err error
 
+// Initialize ..
 func Initialize() {
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.Default()

@@ -14,6 +14,7 @@ import (
 	"github.com/tosone/mirrorepo/models"
 )
 
+// Start ..
 func Start(context *gin.Context) {
 	var err error
 	var address = context.PostForm("address")
@@ -34,7 +35,7 @@ func Start(context *gin.Context) {
 	}
 
 	if err = repo.Create(); err != nil {
-		logging.Error(err.Error())
+		logging.Error(err)
 		context.JSON(http.StatusOK, errWebCode.DatabaseErr)
 		return
 	}
@@ -55,6 +56,4 @@ func Start(context *gin.Context) {
 		context.JSON(200, errWebCode.ServiceErr)
 		return
 	}
-
-	return
 }

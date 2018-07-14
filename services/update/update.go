@@ -21,22 +21,19 @@ var updateList = map[uint]*models.Repo{}
 func Initialize() {
 	channel := make(chan taskMgr.ServiceCommand, 1)
 	go func() {
-		for {
-			select {
-			case control := <-channel:
-				switch control.Cmd {
-				case "start":
-					for _, repo := range updateList {
-						if control.TaskContent.(taskMgr.TaskContentClone).Repo.ID == repo.ID {
-							return
-						}
+		for control := range channel {
+			switch control.Cmd {
+			case "start":
+				for _, repo := range updateList {
+					if control.TaskContent.(taskMgr.TaskContentClone).Repo.ID == repo.ID {
+						return
 					}
-					updateList[control.TaskContent.(taskMgr.TaskContentClone).Repo.ID] = control.TaskContent.(taskMgr.TaskContentClone).Repo
-					updateLocker.Lock()
-					update(control.TaskContent.(taskMgr.TaskContentUpdate))
-					delete(updateList, control.TaskContent.(taskMgr.TaskContentClone).Repo.ID)
-					updateLocker.Unlock()
 				}
+				updateList[control.TaskContent.(taskMgr.TaskContentClone).Repo.ID] = control.TaskContent.(taskMgr.TaskContentClone).Repo
+				updateLocker.Lock()
+				update(control.TaskContent.(taskMgr.TaskContentUpdate))
+				delete(updateList, control.TaskContent.(taskMgr.TaskContentClone).Repo.ID)
+				updateLocker.Unlock()
 			}
 		}
 	}()
@@ -114,8 +111,8 @@ func detail(repo *models.Repo) {
 		logging.Error(err.Error())
 	}
 
-	repo.LastCommitId = repo.CommitId
-	repo.CommitId, err = bash.CommitId(repo.RealPlace)
+	repo.LastCommitID = repo.CommitID
+	repo.CommitID, err = bash.CommitID(repo.RealPlace)
 	if err != nil {
 		logging.Error(err.Error())
 	}
