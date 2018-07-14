@@ -8,9 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"github.com/tosone/logging"
-	"github.com/tosone/mirrorepo/cmd/web/webServices/errWebCode"
+	"github.com/tosone/mirrorepo/cmd/web/webServices/errwebcode"
 	"github.com/tosone/mirrorepo/common/defination"
-	"github.com/tosone/mirrorepo/common/taskMgr"
+	"github.com/tosone/mirrorepo/common/taskmgr"
 	"github.com/tosone/mirrorepo/models"
 )
 
@@ -22,7 +22,7 @@ func Start(context *gin.Context) {
 	//var isSendEmail = context.PostForm("isSendEmail")
 
 	if address == "" {
-		context.JSON(http.StatusOK, errWebCode.AddressNull)
+		context.JSON(http.StatusOK, errwebcode.AddressNull)
 		return
 	}
 
@@ -36,24 +36,24 @@ func Start(context *gin.Context) {
 
 	if err = repo.Create(); err != nil {
 		logging.Error(err)
-		context.JSON(http.StatusOK, errWebCode.DatabaseErr)
+		context.JSON(http.StatusOK, errwebcode.DatabaseErr)
 		return
 	}
 
 	if com.IsDir(path.Join(viper.GetString("Setting.Repo"), name)) {
-		context.JSON(http.StatusOK, errWebCode.DirExist)
+		context.JSON(http.StatusOK, errwebcode.DirExist)
 		return
 	}
 
-	err = taskMgr.Transport(taskMgr.ServiceCommand{
+	err = taskmgr.Transport(taskmgr.ServiceCommand{
 		Task:        "clone",
 		Cmd:         "start",
-		TaskContent: taskMgr.TaskContentClone{Repo: repo},
+		TaskContent: taskmgr.TaskContentClone{Repo: repo},
 	})
 
 	if err != nil {
 		logging.Error(err.Error())
-		context.JSON(200, errWebCode.ServiceErr)
+		context.JSON(200, errwebcode.ServiceErr)
 		return
 	}
 }
