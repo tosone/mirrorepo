@@ -61,11 +61,17 @@ type inst struct {
 // Entry ..
 type Entry interface {
 	Panic(...interface{})
+	Panicf(string, ...interface{})
 	Fatal(...interface{})
+	Fatalf(string, ...interface{})
 	Error(...interface{})
+	Errorf(string, ...interface{})
 	Warn(...interface{})
+	Warnf(string, ...interface{})
 	Info(...interface{})
+	Infof(string, ...interface{})
 	Debug(...interface{})
+	Debugf(string, ...interface{})
 	withFields(Fields) *inst
 }
 
@@ -84,6 +90,22 @@ func (i *inst) withFields(fields Fields) *inst {
 	return i
 }
 
+func Panicf(format string, str ...interface{}) {
+	i := &inst{}
+	i.Panicf(format, str...)
+}
+
+// Panicf ..
+func (i *inst) Panicf(format string, str ...interface{}) {
+	if len(str) != 0 {
+		i.msg = []interface{}{fmt.Sprintf(format, str...)}
+	} else {
+		i.msg = []interface{}{format}
+	}
+	i.level = PanicLevel
+	i.output()
+}
+
 // Panic ..
 func Panic(str ...interface{}) {
 	i := &inst{}
@@ -94,6 +116,23 @@ func Panic(str ...interface{}) {
 func (i *inst) Panic(str ...interface{}) {
 	i.msg = str
 	i.level = PanicLevel
+	i.output()
+}
+
+// Fatalf ..
+func Fatalf(format string, str ...interface{}) {
+	i := &inst{}
+	i.Fatalf(format, str...)
+}
+
+// Fatalf ..
+func (i *inst) Fatalf(format string, str ...interface{}) {
+	if len(str) != 0 {
+		i.msg = []interface{}{fmt.Sprintf(format, str...)}
+	} else {
+		i.msg = []interface{}{format}
+	}
+	i.level = FatalLevel
 	i.output()
 }
 
@@ -110,6 +149,23 @@ func (i *inst) Fatal(str ...interface{}) {
 	i.output()
 }
 
+// Errorf ..
+func Errorf(format string, str ...interface{}) {
+	i := &inst{}
+	i.Errorf(format, str...)
+}
+
+// Errorf ..
+func (i *inst) Errorf(format string, str ...interface{}) {
+	if len(str) != 0 {
+		i.msg = []interface{}{fmt.Sprintf(format, str...)}
+	} else {
+		i.msg = []interface{}{format}
+	}
+	i.level = ErrorLevel
+	i.output()
+}
+
 // Error ..
 func Error(str ...interface{}) {
 	i := &inst{}
@@ -120,6 +176,23 @@ func Error(str ...interface{}) {
 func (i *inst) Error(str ...interface{}) {
 	i.msg = str
 	i.level = ErrorLevel
+	i.output()
+}
+
+// Warnf ..
+func Warnf(format string, str ...interface{}) {
+	i := &inst{}
+	i.Warnf(format, str...)
+}
+
+// Warnf ..
+func (i *inst) Warnf(format string, str ...interface{}) {
+	if len(str) != 0 {
+		i.msg = []interface{}{fmt.Sprintf(format, str...)}
+	} else {
+		i.msg = []interface{}{format}
+	}
+	i.level = WarnLevel
 	i.output()
 }
 
@@ -136,6 +209,23 @@ func (i *inst) Warn(str ...interface{}) {
 	i.output()
 }
 
+// Infof ..
+func Infof(format string, str ...interface{}) {
+	i := &inst{}
+	i.Infof(format, str...)
+}
+
+// Info ..
+func (i *inst) Infof(format string, str ...interface{}) {
+	if len(str) != 0 {
+		i.msg = []interface{}{fmt.Sprintf(format, str...)}
+	} else {
+		i.msg = []interface{}{format}
+	}
+	i.level = InfoLevel
+	i.output()
+}
+
 // Info ..
 func Info(str ...interface{}) {
 	i := &inst{}
@@ -146,6 +236,23 @@ func Info(str ...interface{}) {
 func (i *inst) Info(str ...interface{}) {
 	i.msg = str
 	i.level = InfoLevel
+	i.output()
+}
+
+// Debugf ..
+func Debugf(format string, str ...interface{}) {
+	i := &inst{}
+	i.Debugf(format, str...)
+}
+
+// Debugf ..
+func (i *inst) Debugf(format string, str ...interface{}) {
+	if len(str) != 0 {
+		i.msg = []interface{}{fmt.Sprintf(format, str...)}
+	} else {
+		i.msg = []interface{}{format}
+	}
+	i.level = DebugLevel
 	i.output()
 }
 
@@ -170,13 +277,13 @@ func (i *inst) output() {
 	}
 	switch i.level {
 	case DebugLevel:
-		colorFun = color.New(color.FgBlack).SprintFunc()
+		colorFun = color.New(color.FgHiWhite).SprintFunc()
 	case WarnLevel:
-		colorFun = color.New(color.FgYellow).SprintFunc()
+		colorFun = color.New(color.FgHiYellow).SprintFunc()
 	case ErrorLevel, FatalLevel, PanicLevel:
-		colorFun = color.New(color.FgRed).SprintFunc()
+		colorFun = color.New(color.FgHiRed).SprintFunc()
 	default:
-		colorFun = color.New(color.FgBlue).SprintFunc()
+		colorFun = color.New(color.FgHiBlue).SprintFunc()
 	}
 	levelText := strings.ToUpper(i.level.String())[0:4]
 	var output string
