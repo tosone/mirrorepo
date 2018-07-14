@@ -11,7 +11,7 @@ import (
 	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/bash"
 	"github.com/tosone/mirrorepo/common/defination"
-	"github.com/tosone/mirrorepo/common/taskMgr"
+	"github.com/tosone/mirrorepo/common/taskmgr"
 	"github.com/tosone/mirrorepo/models"
 	"github.com/tosone/mirrorepo/services/clone"
 )
@@ -65,10 +65,10 @@ func Initialize(scanDir ...string) {
 				logging.WithFields(logging.Fields{"repo": repo}).Error(err.Error())
 				return err
 			}
-			err = taskMgr.Transport(taskMgr.ServiceCommand{
+			err = taskmgr.Transport(taskmgr.ServiceCommand{
 				Task:        "clone",
 				Cmd:         "start",
-				TaskContent: taskMgr.TaskContentClone{Repo: repo},
+				TaskContent: taskmgr.TaskContentClone{Repo: repo},
 			})
 
 			return err

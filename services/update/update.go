@@ -7,7 +7,7 @@ import (
 	"github.com/Unknwon/com"
 	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/bash"
-	"github.com/tosone/mirrorepo/common/taskMgr"
+	"github.com/tosone/mirrorepo/common/taskmgr"
 	"github.com/tosone/mirrorepo/models"
 )
 
@@ -19,25 +19,25 @@ var updateList = map[uint]*models.Repo{}
 
 // Initialize ..
 func Initialize() {
-	channel := make(chan taskMgr.ServiceCommand, 1)
+	channel := make(chan taskmgr.ServiceCommand, 1)
 	go func() {
 		for control := range channel {
 			switch control.Cmd {
 			case "start":
 				for _, repo := range updateList {
-					if control.TaskContent.(taskMgr.TaskContentClone).Repo.ID == repo.ID {
+					if control.TaskContent.(taskmgr.TaskContentClone).Repo.ID == repo.ID {
 						return
 					}
 				}
-				updateList[control.TaskContent.(taskMgr.TaskContentClone).Repo.ID] = control.TaskContent.(taskMgr.TaskContentClone).Repo
+				updateList[control.TaskContent.(taskmgr.TaskContentClone).Repo.ID] = control.TaskContent.(taskmgr.TaskContentClone).Repo
 				updateLocker.Lock()
-				update(control.TaskContent.(taskMgr.TaskContentUpdate))
-				delete(updateList, control.TaskContent.(taskMgr.TaskContentClone).Repo.ID)
+				update(control.TaskContent.(taskmgr.TaskContentUpdate))
+				delete(updateList, control.TaskContent.(taskmgr.TaskContentClone).Repo.ID)
 				updateLocker.Unlock()
 			}
 		}
 	}()
-	taskMgr.Register(serviceName, channel)
+	taskmgr.Register(serviceName, channel)
 }
 
 // WaitAll ..
@@ -55,7 +55,7 @@ func WaitAll() {
 	<-done
 }
 
-func update(content taskMgr.TaskContentUpdate) {
+func update(content taskmgr.TaskContentUpdate) {
 	var err error
 	var repo = content.Repo
 
