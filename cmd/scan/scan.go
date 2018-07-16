@@ -3,10 +3,10 @@ package scan
 import (
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 
+	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/bash"
@@ -58,7 +58,7 @@ func Initialize(scanDir ...string) {
 				Address:   p,
 				Status:    defination.Waiting,
 				Name:      base,
-				RealPlace: path.Join(viper.GetString("Setting.Repo"), base),
+				AliasName: uuid.NewV4().String(),
 				Travel:    viper.GetInt("Setting.Travel"),
 			}
 			if err = repo.Create(); err != nil {
