@@ -15,7 +15,7 @@ ${OSName}: clean
 	GOOS=$@ go build -v -o release/${Target}-$@${Suffix} -ldflags "-s -w -X main.BuildStamp=${BuildStamp} -X main.GitHash=${GitHash} -X main.Version=${Version}"
 
 test: clean_test
-	release/${Target}-${OSName}${Suffix} --config=config.yaml scan /Users/tosone/gocode/src/gopkg.in
+	release/${Target}-${OSName}${Suffix} --config=config.yaml scan $(GOPATH)/src/gopkg.in
 
 authors:
 	echo "Authors\n=======\n\nProject's contributors:\n" > AUTHORS.md

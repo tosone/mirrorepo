@@ -105,8 +105,8 @@ func detail(repo *models.Repo) {
 		logging.Error(err.Error())
 	}
 
-	repo.LastSize = repo.Size
-	repo.Size, err = bash.RepoSize(repo.RealPlace)
+	//repo.LastSize = repo.Size
+	//repo.Size, err = bash.RepoSize(repo.RealPlace)
 	if err != nil {
 		logging.Error(err.Error())
 	}

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Unknwon/com"
+	"github.com/satori/go.uuid"
 	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/bash"
 	"github.com/tosone/mirrorepo/common/defination"
@@ -124,14 +125,15 @@ func clone(content taskmgr.TaskContentClone) {
 
 	bar := pb.StartNew(100)
 	defer bar.Finish()
+
 	var wg = new(sync.WaitGroup)
 	var signalDone = make(chan bool)
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		for {
-			bar.Set(repo.Name+" "+cloneInfo.Status, cloneInfo.Progress)
-			//			bar.Prefix(repo.Name + " " + cloneInfo.Status)
+			bar.Set("prefix", repo.Name+" "+cloneInfo.Status+" ")
+			bar.SetCurrent(int64(cloneInfo.Progress))
 			time.Sleep(time.Millisecond * 500)
 			repo.Status = defination.RepoStatus(cloneInfo.Status)
 			if err = repo.UpdateByID(); err != nil {
@@ -168,17 +170,20 @@ func clone(content taskmgr.TaskContentClone) {
 	wg.Wait()
 
 	if doneResult != nil {
-		logging.Error(doneResult.Error())
-		bar.Set(repo.Name+" "+"Error", 100)
-		//		bar.Prefix(repo.Name + " " + "Error")
+		logging.Error(doneResult)
+		bar.Set("prefix", repo.Name+" "+"Error ")
 		repo.Status = defination.Error
 		return
 	}
 
-	bar.Set(repo.Name+" "+"Success", 100)
-	//	bar.Prefix(repo.Name + " " + "Success")
+	bar.Set("prefix", repo.Name+" "+"Success ")
 	repo.Status = defination.Success
-	detail(repo)
+	if err = detail(repo); err != nil {
+		logging.Error(err)
+	}
+	if err = repo.UpdateByID(); err != nil {
+		logging.Error(err)
+	}
 }
 
 func stop(id uint) {
@@ -190,25 +195,43 @@ func stop(id uint) {
 	}
 }
 
-func detail(repo *models.Repo) {
-	var err error
-
+func detail(repo *models.Repo) (err error) {
 	if err = bash.RemoteReset(repo.RealPlace, repo.Address); err != nil {
-		logging.Error(err)
+		return
 	}
 
 	if repo.CommitCount, err = bash.CountCommits(repo.RealPlace); err != nil {
-		logging.Error(err)
+		return
 	}
-	repo.LastCommitCount = repo.CommitCount
 
-	if repo.Size, err = bash.RepoSize(repo.RealPlace); err != nil {
-		logging.Error(err)
-	}
-	repo.LastSize = repo.Size
+	var size uint64
+	var commit string
+	var historySize = new(models.HistorySize)
+	var historyCommit = new(models.HistoryCommit)
+	var uniqueID = uuid.NewV4().String()
 
-	if repo.CommitID, err = bash.CommitID(repo.RealPlace); err != nil {
-		logging.Error(err)
+	if size, err = bash.RepoSize(repo.RealPlace); err != nil {
+		return
 	}
-	repo.LastCommitID = repo.CommitID
+
+	historySize.RepoID = repo.ID
+	historySize.Size = size
+	historySize.RepoLastID = uniqueID
+	if err = historySize.Create(); err != nil {
+		return
+	}
+
+	if commit, err = bash.CommitID(repo.RealPlace); err != nil {
+		return
+	}
+	historyCommit.RepoID = repo.ID
+	historyCommit.Commit = commit
+	historyCommit.RepoLastID = uniqueID
+	if err = historyCommit.Create(); err != nil {
+		return
+	}
+
+	repo.Foreigner = uniqueID
+
+	return
 }

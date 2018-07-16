@@ -37,7 +37,7 @@ func Initialize(scanDir ...string) {
 				return nil
 			}
 
-			if !strings.Contains(p, ".git") {
+			if strings.Contains(p, ".git") {
 				return nil
 			}
 

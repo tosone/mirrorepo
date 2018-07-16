@@ -7,8 +7,6 @@ import (
 	"os/exec"
 	"regexp"
 	"strconv"
-
-	"github.com/tosone/logging"
 )
 
 // CloneInfo ..
@@ -26,8 +24,14 @@ func (info *CloneInfo) Start() (channel chan error) {
 
 	channel = make(chan error, 1)
 
+	defer func() {
+		channel <- err
+		info.Progress = 100
+	}()
+
 	if info.Address == "" || info.Destination == "" {
 		err = errors.New("clone info is not correct")
+		return
 	}
 
 	/* #nosec */
@@ -36,19 +40,17 @@ func (info *CloneInfo) Start() (channel chan error) {
 	var stderrPipe io.ReadCloser
 
 	cmd.Stderr = cmd.Stdout
-	stderrPipe, err = cmd.StderrPipe()
-	if err != nil {
+	if stderrPipe, err = cmd.StderrPipe(); err != nil {
 		return
 	}
-	err = cmd.Start()
-	if err != nil {
+	if err = cmd.Start(); err != nil {
 		return
 	}
 
 	go func() {
 		var n int
 		for {
-			var b = make([]byte, 80)
+			var b = make([]byte, 10240)
 			n, err = stderrPipe.Read(b)
 			if err == io.EOF {
 				err = nil
@@ -99,12 +101,11 @@ func (info *CloneInfo) Start() (channel chan error) {
 			}
 		}
 	}()
-	go func() {
-		if err = cmd.Wait(); err != nil {
-			logging.Error(err)
-		}
-		channel <- err
-	}()
+
+	if err = cmd.Wait(); err != nil {
+		return
+	}
+
 	return
 }
 
