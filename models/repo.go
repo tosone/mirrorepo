@@ -12,15 +12,13 @@ type Repo struct {
 	gorm.Model
 	Address         string                // 仓库地址
 	Name            string                // 本地存储所用的名字
-	RealPlace       string                // 真正存储的地方
+	AliasName       string                // 真正存储的地方
 	Travel          int                   // 仓库两次更新之间的时间间隔
 	LastTraveled    time.Time             // 仓库上次被更新的时间
 	Status          defination.RepoStatus // 仓库状态
-	CommitID        string                // HEAD 的 CommitId
-	LastCommitID    string                // 之前 HEAD 的 CommitId
 	CommitCount     uint64                // commit 数量
 	LastCommitCount uint64                // 之前 commit 数量
-	Foreigner       string                // 外键 ID
+	HistoryInfoID   string                // 外键 ID
 }
 
 // Create ..
