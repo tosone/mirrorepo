@@ -2,13 +2,15 @@ package clone
 
 import (
 	"context"
-	"errors"
+	"fmt"
+	"path"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/Unknwon/com"
 	"github.com/satori/go.uuid"
+	"github.com/spf13/viper"
 	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/bash"
 	"github.com/tosone/mirrorepo/common/defination"
@@ -30,27 +32,33 @@ func Initialize() {
 	channel := make(chan taskmgr.ServiceCommand, 1)
 	go func() {
 		for control := range channel {
+			var task = control.TaskContent.(taskmgr.TaskContentClone)
 			switch control.Cmd {
 			case "start":
+				var uniqueTask = true
 				for _, repo := range cloneList {
-					if control.TaskContent.(taskmgr.TaskContentClone).Repo.ID == repo.ID {
-						return
+					if task.Repo.ID == repo.ID {
+						uniqueTask = false
 					}
 				}
-				cloneList[control.TaskContent.(taskmgr.TaskContentClone).Repo.ID] = control.TaskContent.(taskmgr.TaskContentClone).Repo
-				cloneLocker.Lock()
-				clone(control.TaskContent.(taskmgr.TaskContentClone))
-				delete(cloneList, control.TaskContent.(taskmgr.TaskContentClone).Repo.ID)
-				cloneLocker.Unlock()
+				if uniqueTask {
+					cloneList[task.Repo.ID] = task.Repo
+					cloneLocker.Lock()
+					if err := clone(task); err != nil {
+						logging.Error(err)
+					}
+					delete(cloneList, task.Repo.ID)
+					cloneLocker.Unlock()
+				}
 			case "stop":
-				stop(control.TaskContent.(taskmgr.TaskContentClone).Repo.ID)
+				stop(task.Repo.ID)
 			}
 		}
 	}()
 	taskmgr.Register(serviceName, channel)
 }
 
-// WaitAll ..
+// WaitAll wait all of the clone tasks are over
 func WaitAll() {
 	var done = make(chan bool)
 	go func() {
@@ -68,9 +76,9 @@ func WaitAll() {
 var ctx context.Context
 var ctxCancel context.CancelFunc
 
-func clone(content taskmgr.TaskContentClone) {
-	var err error
+func clone(content taskmgr.TaskContentClone) (err error) {
 	var repo = content.Repo
+	var realPlace = path.Join(viper.GetString("Setting.Repo"), repo.AliasName)
 
 	ctx, ctxCancel = context.WithCancel(context.Background())
 	defer func() {
@@ -91,18 +99,17 @@ func clone(content taskmgr.TaskContentClone) {
 			Cmd:    serviceName,
 			Status: status,
 			Msg:    msg,
-			Time:   time.Now(),
 		}
 		if err = log.Create(); err != nil {
-			logging.Error(err.Error())
+			return
 		}
 		if err = repo.UpdateByID(); err != nil {
-			logging.Error(err.Error())
+			return
 		}
 	}()
 
-	if com.IsDir(repo.RealPlace) {
-		err = errors.New("dir is exist")
+	if com.IsDir(realPlace) {
+		err = fmt.Errorf("dir is exist already: %s", realPlace)
 		return
 	}
 
@@ -112,7 +119,7 @@ func clone(content taskmgr.TaskContentClone) {
 
 	var cloneInfo = &bash.CloneInfo{
 		Address:     address,
-		Destination: repo.RealPlace,
+		Destination: realPlace,
 	}
 	done := cloneInfo.Start()
 
@@ -178,12 +185,17 @@ func clone(content taskmgr.TaskContentClone) {
 
 	bar.Set("prefix", repo.Name+" "+"Success ")
 	repo.Status = defination.Success
+
+	if err = bash.RemoteReset(realPlace, repo.Address); err != nil {
+		return
+	}
 	if err = detail(repo); err != nil {
-		logging.Error(err)
+		return
 	}
 	if err = repo.UpdateByID(); err != nil {
-		logging.Error(err)
+		return
 	}
+	return
 }
 
 func stop(id uint) {
@@ -196,42 +208,33 @@ func stop(id uint) {
 }
 
 func detail(repo *models.Repo) (err error) {
-	if err = bash.RemoteReset(repo.RealPlace, repo.Address); err != nil {
-		return
-	}
+	var realPlace = path.Join(viper.GetString("Setting.Repo"), repo.AliasName)
 
-	if repo.CommitCount, err = bash.CountCommits(repo.RealPlace); err != nil {
+	if repo.CommitCount, err = bash.CountCommits(realPlace); err != nil {
 		return
 	}
 
 	var size uint64
 	var commit string
-	var historySize = new(models.HistorySize)
-	var historyCommit = new(models.HistoryCommit)
+	var historyInfo = new(models.HistoryInfo)
 	var uniqueID = uuid.NewV4().String()
 
-	if size, err = bash.RepoSize(repo.RealPlace); err != nil {
+	if size, err = bash.RepoSize(realPlace); err != nil {
+		return
+	}
+	if commit, err = bash.CommitID(realPlace); err != nil {
 		return
 	}
 
-	historySize.RepoID = repo.ID
-	historySize.Size = size
-	historySize.RepoLastID = uniqueID
-	if err = historySize.Create(); err != nil {
+	historyInfo.RepoID = repo.ID
+	historyInfo.Size = size
+	historyInfo.Commit = commit
+	historyInfo.RepoLastID = uniqueID
+	if err = historyInfo.Create(); err != nil {
 		return
 	}
 
-	if commit, err = bash.CommitID(repo.RealPlace); err != nil {
-		return
-	}
-	historyCommit.RepoID = repo.ID
-	historyCommit.Commit = commit
-	historyCommit.RepoLastID = uniqueID
-	if err = historyCommit.Create(); err != nil {
-		return
-	}
-
-	repo.Foreigner = uniqueID
+	repo.HistoryInfoID = uniqueID
 
 	return
 }

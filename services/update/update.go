@@ -1,10 +1,12 @@
 package update
 
 import (
+	"path"
 	"sync"
 	"time"
 
 	"github.com/Unknwon/com"
+	"github.com/spf13/viper"
 	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/bash"
 	"github.com/tosone/mirrorepo/common/taskmgr"
@@ -22,17 +24,20 @@ func Initialize() {
 	channel := make(chan taskmgr.ServiceCommand, 1)
 	go func() {
 		for control := range channel {
+			var task = control.TaskContent.(taskmgr.TaskContentUpdate)
 			switch control.Cmd {
 			case "start":
 				for _, repo := range updateList {
-					if control.TaskContent.(taskmgr.TaskContentClone).Repo.ID == repo.ID {
+					if task.Repo.ID == repo.ID {
 						return
 					}
 				}
-				updateList[control.TaskContent.(taskmgr.TaskContentClone).Repo.ID] = control.TaskContent.(taskmgr.TaskContentClone).Repo
+				updateList[task.Repo.ID] = task.Repo
 				updateLocker.Lock()
-				update(control.TaskContent.(taskmgr.TaskContentUpdate))
-				delete(updateList, control.TaskContent.(taskmgr.TaskContentClone).Repo.ID)
+				if err := update(task); err != nil {
+					logging.Error(err)
+				}
+				delete(updateList, task.Repo.ID)
 				updateLocker.Unlock()
 			}
 		}
@@ -55,13 +60,9 @@ func WaitAll() {
 	<-done
 }
 
-func update(content taskmgr.TaskContentUpdate) {
-	var err error
+func update(content taskmgr.TaskContentUpdate) (err error) {
 	var repo = content.Repo
-
-	if !com.IsDir(repo.RealPlace) {
-		logging.WithFields(logging.Fields{"repo": repo.RealPlace}).Error("Dir not found.")
-	}
+	var realPlace = path.Join(viper.GetString("Setting.Repo"), repo.AliasName)
 
 	defer func() {
 		var status = "success"
@@ -75,7 +76,6 @@ func update(content taskmgr.TaskContentUpdate) {
 			Cmd:    serviceName,
 			Status: status,
 			Msg:    msg,
-			Time:   time.Now(),
 		}
 		if err = log.Create(); err != nil {
 			logging.Error(err.Error())
@@ -87,33 +87,44 @@ func update(content taskmgr.TaskContentUpdate) {
 		}
 	}()
 
-	err = bash.Update(repo.RealPlace)
+	if !com.IsDir(realPlace) {
+		logging.WithFields(logging.Fields{"repo": realPlace}).Error("dir not found")
+	}
+
+	err = bash.Update(realPlace)
 	if err != nil {
 		logging.Error(err.Error())
 	}
 
 	repo.LastTraveled = time.Now()
-	detail(repo)
-}
-
-func detail(repo *models.Repo) {
-	var err error
-
-	repo.LastCommitCount = repo.CommitCount
-	repo.CommitCount, err = bash.CountCommits(repo.RealPlace)
-	if err != nil {
-		logging.Error(err.Error())
+	if repo.CommitCount, err = bash.CountCommits(realPlace); err != nil {
+		return
 	}
 
-	//repo.LastSize = repo.Size
-	//repo.Size, err = bash.RepoSize(repo.RealPlace)
-	if err != nil {
-		logging.Error(err.Error())
+	{
+		var commit string
+		var size uint64
+		if size, err = bash.RepoSize(realPlace); err != nil {
+			return
+		}
+		if commit, err = bash.CommitID(realPlace); err != nil {
+			return
+		}
+		var historyInfo = &models.HistoryInfo{RepoLastID: repo.HistoryInfoID}
+		var oldHistoryInfo = new(models.HistoryInfo)
+		if oldHistoryInfo, err = historyInfo.Find(); err != nil {
+			return
+		}
+		if oldHistoryInfo.Commit == commit {
+			return
+		}
+		historyInfo.Size = size
+		historyInfo.Commit = commit
+		historyInfo.RepoID = repo.ID
+		if err = historyInfo.Create(); err != nil {
+			return
+		}
 	}
 
-	repo.LastCommitID = repo.CommitID
-	repo.CommitID, err = bash.CommitID(repo.RealPlace)
-	if err != nil {
-		logging.Error(err.Error())
-	}
+	return
 }

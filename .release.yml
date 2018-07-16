@@ -1,0 +1,14 @@
+Username: tosone
+Repo: mirrorepo
+Branch: master
+Rewrite: true
+Draft: false
+Prerelease: false
+Runtime:
+  Timeout: 10
+  Debug: true
+Release:
+  Files:
+    - release/*
+  Compress: true
+    - config.yml

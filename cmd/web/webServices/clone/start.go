@@ -30,7 +30,7 @@ func Start(context *gin.Context) {
 		Address:   address,
 		Status:    defination.Waiting,
 		Name:      name,
-		RealPlace: path.Join(viper.GetString("Setting.Repo"), name),
+		AliasName: path.Join(viper.GetString("Setting.Repo"), name),
 		Travel:    viper.GetInt("Setting.Travel"),
 	}
 

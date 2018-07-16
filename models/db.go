@@ -46,7 +46,11 @@ func Connect() (err error) {
 		}).Panic(err.Error())
 	}
 
-	if err = engine.AutoMigrate(new(Repo), new(Log)).Error; err != nil {
+	if err = engine.AutoMigrate(
+		new(Repo),
+		new(Log),
+		new(HistoryInfo),
+	).Error; err != nil {
 		logging.Panic(err.Error())
 	}
 
