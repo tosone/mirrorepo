@@ -20,8 +20,7 @@ type Repo struct {
 	LastCommitID    string                // 之前 HEAD 的 CommitId
 	CommitCount     uint64                // commit 数量
 	LastCommitCount uint64                // 之前 commit 数量
-	Size            uint64                // 仓库大小
-	LastSize        uint64                // 之前仓库大小
+	Foreigner       string                // 外键 ID
 }
 
 // Create ..
