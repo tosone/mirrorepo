@@ -4,15 +4,18 @@ github.com/Unknwon/com
 github.com/fatih/color
 # github.com/fsnotify/fsnotify v1.4.7
 github.com/fsnotify/fsnotify
-# github.com/gin-gonic/gin v1.1.4
+# github.com/gin-contrib/sse v0.0.0-20170109093832-22d885f9ecc7
+github.com/gin-contrib/sse
+# github.com/gin-gonic/gin v1.3.0
 github.com/gin-gonic/gin
 github.com/gin-gonic/gin/binding
+github.com/gin-gonic/gin/json
 github.com/gin-gonic/gin/render
 # github.com/go-sql-driver/mysql v1.4.0
 github.com/go-sql-driver/mysql
-# github.com/golang/protobuf v1.1.0
+# github.com/golang/protobuf v1.2.0
 github.com/golang/protobuf/proto
-# github.com/hashicorp/hcl v0.0.0-20180404174102-ef8a98b0bbce
+# github.com/hashicorp/hcl v1.0.0
 github.com/hashicorp/hcl
 github.com/hashicorp/hcl/hcl/printer
 github.com/hashicorp/hcl/hcl/ast
@@ -29,51 +32,55 @@ github.com/inconshreveable/mousetrap
 github.com/jinzhu/gorm
 # github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a
 github.com/jinzhu/inflection
-# github.com/lib/pq v0.0.0-20180523175426-90697d60dd84
+# github.com/json-iterator/go v1.1.5
+github.com/json-iterator/go
+# github.com/lib/pq v1.0.0
 github.com/lib/pq
 github.com/lib/pq/oid
 # github.com/magiconair/properties v1.8.0
 github.com/magiconair/properties
-# github.com/manucorporat/sse v0.0.0-20160126180136-ee05b128a739
-github.com/manucorporat/sse
 # github.com/mattn/go-colorable v0.0.9
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.3
 github.com/mattn/go-isatty
 # github.com/mattn/go-sqlite3 v1.9.0
 github.com/mattn/go-sqlite3
-# github.com/mitchellh/mapstructure v0.0.0-20180715050151-f15292f7a699
+# github.com/mitchellh/mapstructure v1.0.0
 github.com/mitchellh/mapstructure
+# github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
+github.com/modern-go/concurrent
+# github.com/modern-go/reflect2 v1.0.1
+github.com/modern-go/reflect2
 # github.com/pelletier/go-toml v1.2.0
 github.com/pelletier/go-toml
 # github.com/satori/go.uuid v1.2.0
 github.com/satori/go.uuid
-# github.com/spf13/afero v1.1.1
+# github.com/spf13/afero v1.1.2
 github.com/spf13/afero
 github.com/spf13/afero/mem
 # github.com/spf13/cast v1.2.0
 github.com/spf13/cast
 # github.com/spf13/cobra v0.0.3
 github.com/spf13/cobra
-# github.com/spf13/jwalterweatherman v0.0.0-20180109140146-7c0cea34c8ec
+# github.com/spf13/jwalterweatherman v1.0.0
 github.com/spf13/jwalterweatherman
-# github.com/spf13/pflag v1.0.1
+# github.com/spf13/pflag v1.0.2
 github.com/spf13/pflag
-# github.com/spf13/viper v1.0.2
+# github.com/spf13/viper v1.2.0
 github.com/spf13/viper
-# github.com/tosone/logging v0.0.0-20180712080334-431b4e25ef9f
+# github.com/tosone/logging v0.0.0-20180825015548-ae15ec5b2b1f
 github.com/tosone/logging
-# golang.org/x/crypto v0.0.0-20180621125126-a49355c7e3f8
+# github.com/ugorji/go/codec v0.0.0-20180927125128-99ea80c8b19a
+github.com/ugorji/go/codec
+# golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
-# golang.org/x/net v0.0.0-20180712202826-d0887baf81f4
-golang.org/x/net/context
-# golang.org/x/sys v0.0.0-20180715085529-ac767d655b30
+# golang.org/x/sys v0.0.0-20180906133057-8cf3aee42992
 golang.org/x/sys/unix
 # golang.org/x/text v0.3.0
 golang.org/x/text/transform
 golang.org/x/text/unicode/norm
-# google.golang.org/appengine v1.1.0
+# google.golang.org/appengine v1.2.0
 google.golang.org/appengine/cloudsql
 # gopkg.in/VividCortex/ewma.v1 v1.1.1
 gopkg.in/VividCortex/ewma.v1
@@ -90,9 +97,9 @@ gopkg.in/go-playground/validator.v8
 gopkg.in/gomail.v2
 # gopkg.in/mattn/go-colorable.v0 v0.0.9
 gopkg.in/mattn/go-colorable.v0
-# gopkg.in/mattn/go-isatty.v0 v0.0.3
+# gopkg.in/mattn/go-isatty.v0 v0.0.4
 gopkg.in/mattn/go-isatty.v0
-# gopkg.in/mattn/go-runewidth.v0 v0.0.2
+# gopkg.in/mattn/go-runewidth.v0 v0.0.3
 gopkg.in/mattn/go-runewidth.v0
 # gopkg.in/natefinch/lumberjack.v2 v2.0.0-20170531160350-a96e63847dc3
 gopkg.in/natefinch/lumberjack.v2
