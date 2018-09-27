@@ -1,6 +1,6 @@
 language: go
 go:
-  - 1.10.x
+  - 1.11.x
 before_install:
   - sudo apt-get -qq update
 before_script:
@@ -11,7 +11,6 @@ before_script:
   - go get -u -v github.com/karalabe/xgo
   - go get -u -v github.com/tosone/release2github
 script:
-  - make lint
   - make
 notifications:
   slack:

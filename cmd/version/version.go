@@ -27,5 +27,5 @@ func Setting(version, buildStamp, gitHash string) {
 func Initialize() {
 	fmt.Printf("%s %s %s/%s\n", viper.GetString("Setting.Name"), Version, runtime.GOOS, runtime.GOARCH)
 	fmt.Printf("BuildDate: %s\n", BuildStamp)
-	fmt.Printf("BuildHash: %s\n", GitHash)
+	fmt.Printf("BuildHash: %s\n", GitHash[:10])
 }

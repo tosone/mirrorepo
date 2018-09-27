@@ -15,10 +15,10 @@ require (
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/cobra v0.0.3
-	github.com/spf13/viper v1.2.0
+	github.com/spf13/viper v1.2.1
 	github.com/tosone/logging v0.0.0-20180825015548-ae15ec5b2b1f
 	github.com/ugorji/go/codec v0.0.0-20180927125128-99ea80c8b19a // indirect
-	golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b
+	golang.org/x/crypto v0.0.0-20181001203147-e3636079e1a4
 	google.golang.org/appengine v1.2.0 // indirect
 	gopkg.in/VividCortex/ewma.v1 v1.1.1 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect

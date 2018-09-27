@@ -22,7 +22,7 @@ var BuildStamp = "no provided"
 var GitHash = "no provided"
 
 func init() {
-	//logging.Setting()
+	// logging.Setting()
 }
 
 func main() {

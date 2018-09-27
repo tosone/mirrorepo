@@ -4,6 +4,7 @@ import (
 	"github.com/Unknwon/com"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
 	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/cmd/scan"
 	"github.com/tosone/mirrorepo/cmd/version"

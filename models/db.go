@@ -5,6 +5,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/spf13/viper"
+
 	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/models/logger"
 )

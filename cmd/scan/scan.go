@@ -8,6 +8,7 @@ import (
 
 	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
+
 	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/bash"
 	"github.com/tosone/mirrorepo/common/defination"

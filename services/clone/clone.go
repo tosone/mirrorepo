@@ -11,12 +11,13 @@ import (
 	"github.com/Unknwon/com"
 	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
+	"gopkg.in/cheggaaa/pb.v2"
+
 	"github.com/tosone/logging"
 	"github.com/tosone/mirrorepo/bash"
 	"github.com/tosone/mirrorepo/common/defination"
 	"github.com/tosone/mirrorepo/common/taskmgr"
 	"github.com/tosone/mirrorepo/models"
-	"gopkg.in/cheggaaa/pb.v2"
 )
 
 const serviceName = "clone"

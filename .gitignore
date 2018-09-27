@@ -4,8 +4,7 @@
 release/
 *.db
 *.db-journal
-repo/
 *.log
-fontend/public/dist/
-fontend/node_modules/
-fontend/webpack/www/
+
+repo/
+fontend/build/

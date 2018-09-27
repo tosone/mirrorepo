@@ -1,6 +1,6 @@
 BuildStamp = main.BuildStamp=$(shell date '+%Y-%m-%d_%I:%M:%S%p')
 GitHash    = main.GitHash=$(shell git rev-parse HEAD)
-Version    = $(shell git describe --abbrev=0 --tags --always)
+Version    = main.Version=$(shell git describe --abbrev=0 --tags --always)
 Target     = $(shell basename $(abspath $(dir $$PWD)))
 Suffix     =
 
@@ -8,11 +8,11 @@ ifeq ($(OS),Windows_NT)
 	OSName = windows
 	Suffix = .exe
 else
-	OSName = $(shell echo $(shell uname -s) | tr '[:upper:]' '[:lower:]')
+	OSName = $(shell uname -s)
 endif
 
 ${OSName}: clean
-	GOOS=$@ go build -v -o release/${Target}-$@${Suffix} -ldflags "-s -w -X main.BuildStamp=${BuildStamp} -X main.GitHash=${GitHash} -X main.Version=${Version}"
+	@GOOS=$(shell echo $@ | tr '[:upper:]' '[:lower:]') go build -v -o release/${Target}-$@${Suffix} -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}"
 
 test: clean_test
 	release/${Target}-${OSName}${Suffix} --config=config.yml scan $(GOPATH)/src/gopkg.in
@@ -22,7 +22,7 @@ authors:
 	git log --raw | grep "^Author: " | cut -d ' ' -f2- | cut -d '<' -f1 | sed 's/^/- /' | sort | uniq >> AUTHORS.md
 
 clean:
-	$(RM) -r release
+	@$(RM) -r release
 
 lint:
 	gometalinter.v2 ./...

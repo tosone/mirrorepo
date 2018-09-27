@@ -66,13 +66,13 @@ github.com/spf13/cobra
 github.com/spf13/jwalterweatherman
 # github.com/spf13/pflag v1.0.2
 github.com/spf13/pflag
-# github.com/spf13/viper v1.2.0
+# github.com/spf13/viper v1.2.1
 github.com/spf13/viper
 # github.com/tosone/logging v0.0.0-20180825015548-ae15ec5b2b1f
 github.com/tosone/logging
 # github.com/ugorji/go/codec v0.0.0-20180927125128-99ea80c8b19a
 github.com/ugorji/go/codec
-# golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b
+# golang.org/x/crypto v0.0.0-20181001203147-e3636079e1a4
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
 # golang.org/x/sys v0.0.0-20180906133057-8cf3aee42992
