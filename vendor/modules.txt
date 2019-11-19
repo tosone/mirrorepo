@@ -17,13 +17,13 @@ github.com/go-sql-driver/mysql
 github.com/golang/protobuf/proto
 # github.com/hashicorp/hcl v1.0.0
 github.com/hashicorp/hcl
-github.com/hashicorp/hcl/hcl/printer
 github.com/hashicorp/hcl/hcl/ast
 github.com/hashicorp/hcl/hcl/parser
-github.com/hashicorp/hcl/hcl/token
-github.com/hashicorp/hcl/json/parser
+github.com/hashicorp/hcl/hcl/printer
 github.com/hashicorp/hcl/hcl/scanner
 github.com/hashicorp/hcl/hcl/strconv
+github.com/hashicorp/hcl/hcl/token
+github.com/hashicorp/hcl/json/parser
 github.com/hashicorp/hcl/json/scanner
 github.com/hashicorp/hcl/json/token
 # github.com/inconshreveable/mousetrap v1.0.0
@@ -39,9 +39,9 @@ github.com/lib/pq
 github.com/lib/pq/oid
 # github.com/magiconair/properties v1.8.0
 github.com/magiconair/properties
-# github.com/mattn/go-colorable v0.0.9
+# github.com/mattn/go-colorable v0.1.4
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.3
+# github.com/mattn/go-isatty v0.0.10
 github.com/mattn/go-isatty
 # github.com/mattn/go-sqlite3 v1.9.0
 github.com/mattn/go-sqlite3
@@ -68,14 +68,14 @@ github.com/spf13/jwalterweatherman
 github.com/spf13/pflag
 # github.com/spf13/viper v1.2.1
 github.com/spf13/viper
-# github.com/tosone/logging v0.0.0-20180825015548-ae15ec5b2b1f
+# github.com/tosone/logging v0.0.0-20190717132334-b3a0cfb708ca
 github.com/tosone/logging
 # github.com/ugorji/go/codec v0.0.0-20180927125128-99ea80c8b19a
 github.com/ugorji/go/codec
 # golang.org/x/crypto v0.0.0-20181001203147-e3636079e1a4
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
-# golang.org/x/sys v0.0.0-20180906133057-8cf3aee42992
+# golang.org/x/sys v0.0.0-20191008105621-543471e840be
 golang.org/x/sys/unix
 # golang.org/x/text v0.3.0
 golang.org/x/text/transform

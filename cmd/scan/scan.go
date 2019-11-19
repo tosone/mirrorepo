@@ -20,9 +20,7 @@ import (
 // Initialize ..
 func Initialize(scanDir ...string) {
 	var err error
-	if err = models.Connect(); err != nil {
-		logging.Fatal(err)
-	}
+
 	for _, dir := range scanDir {
 		var repoPreFix []string
 		err = filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {

@@ -14,8 +14,11 @@ endif
 ${OSName}: clean
 	@GOOS=$(shell echo $@ | tr '[:upper:]' '[:lower:]') go build -v -o release/${Target}-$@${Suffix} -ldflags "-s -w -X ${BuildStamp} -X ${GitHash} -X ${Version}"
 
-test: clean_test
+test: clean-test
 	release/${Target}-${OSName}${Suffix} --config=config.yml scan $(GOPATH)/src/gopkg.in
+
+test-web:
+	release/${Target}-${OSName}${Suffix} --config=config.yml web
 
 authors:
 	echo "Authors\n=======\n\nProject's contributors:\n" > AUTHORS.md
@@ -27,5 +30,5 @@ clean:
 lint:
 	gometalinter.v2 ./...
 
-clean_test:
-	$(RM) -r *.log mirror.db repo
+clean-test:
+	$(RM) -r *.log mirror.db repo log

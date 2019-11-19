@@ -16,12 +16,11 @@ import (
 
 const serviceName = "update"
 
-var updateLocker = new(sync.Mutex)
-
 var updateList = map[uint]*models.Repo{}
 
 // Initialize ..
 func Initialize() {
+	var updateLocker = new(sync.Mutex)
 	channel := make(chan taskmgr.ServiceCommand, 1)
 	go func() {
 		for control := range channel {
@@ -92,9 +91,8 @@ func update(content taskmgr.TaskContentUpdate) (err error) {
 		logging.WithFields(logging.Fields{"repo": realPlace}).Error("dir not found")
 	}
 
-	err = bash.Update(realPlace)
-	if err != nil {
-		logging.Error(err.Error())
+	if err = bash.Update(realPlace); err != nil {
+		logging.Error(err)
 	}
 
 	repo.LastTraveled = time.Now()

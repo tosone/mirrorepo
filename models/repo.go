@@ -43,7 +43,8 @@ func (repo *Repo) UpdateByID() error {
 }
 
 // GetAll ..
-func (repo *Repo) GetAll() (repos []*Repo, err error) {
+func (repo *Repo) GetAll() (repos *([]Repo), err error) {
+	repos = new([]Repo)
 	err = engine.Find(repos).Error
 	return
 }

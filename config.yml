@@ -1,5 +1,4 @@
 Setting:
-  Name: mirrorepo
   Repo: ./repo # 仓库存储的路径
   Travel: 8 # 每隔八个小时，遍历所有的仓库更新至状态
 Web:
@@ -13,10 +12,9 @@ Database:
   Password: 8541539655 # 数据库的密码
   Port: 3306 # 数据库的端口
 Log:
-  App: app.log # 程序运行过程中产生的日志路径
+  Filename: log/mirrorepo.log # 程序运行过程中产生的日志路径
   ShowSQL: true # 是否产生数据库日志
-  Database: db.log # 数据库交互产生的日志路径
-  Level: 5 # 日志等级
+  Level: 0 # 日志等级
   MaxAge: 30 # 日志最长的保留日期
   MaxSize: 10 # 每个日志最大的体积（单位 Mb）
   MaxBackups: 3 # 最多备份的日志数量

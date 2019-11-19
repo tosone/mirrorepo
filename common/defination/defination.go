@@ -16,8 +16,8 @@ var (
 	Success RepoStatus = "success"
 	// Waiting ..
 	Waiting RepoStatus = "waiting"
-	// CloneConecting ..
-	CloneConecting RepoStatus = "cloneConnecting"
+	// CloneConnecting ..
+	CloneConnecting RepoStatus = "cloneConnecting"
 	// CloneReceiving ..
 	CloneReceiving RepoStatus = "cloneReceiving"
 	// CloneResolving ..

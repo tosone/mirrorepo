@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/spf13/viper"
+	"github.com/tosone/mirrorepo/common"
 )
 
 // Version version
@@ -25,7 +25,7 @@ func Setting(version, buildStamp, gitHash string) {
 
 // Initialize ..
 func Initialize() {
-	fmt.Printf("%s %s %s/%s\n", viper.GetString("Setting.Name"), Version, runtime.GOOS, runtime.GOARCH)
+	fmt.Printf("%s %s %s/%s\n", common.APPName, Version, runtime.GOOS, runtime.GOARCH)
 	fmt.Printf("BuildDate: %s\n", BuildStamp)
 	fmt.Printf("BuildHash: %s\n", GitHash[:10])
 }

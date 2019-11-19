@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"log"
+	"os"
+	"path"
+
 	"github.com/Unknwon/com"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -10,6 +14,7 @@ import (
 	"github.com/tosone/mirrorepo/cmd/version"
 	"github.com/tosone/mirrorepo/cmd/web"
 	"github.com/tosone/mirrorepo/common"
+	"github.com/tosone/mirrorepo/models"
 	"github.com/tosone/mirrorepo/services"
 )
 
@@ -73,6 +78,26 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err != nil {
 		logging.Panic(err)
 	}
+
+	if !com.IsDir(path.Dir(viper.GetString("Log.Filename"))) {
+		if err := os.MkdirAll(path.Dir(viper.GetString("Log.Filename")), 0755); err != nil {
+			log.Fatalln(err)
+		}
+	}
+
+	if err := models.Connect(); err != nil {
+		logging.Fatal(err)
+	}
+
+	logging.Setting(logging.Config{
+		LogLevel:   logging.Level(viper.GetInt("Log.Level")),
+		Filename:   viper.GetString("Log.Filename"),
+		MaxSize:    viper.GetInt("Log.MaxSize"),
+		MaxBackups: viper.GetInt("Log.MaxBackups"),
+		MaxAge:     viper.GetInt("Log.MaxAge"),
+		LocalTime:  viper.GetBool("Log.LocalTime"),
+		Compress:   viper.GetBool("Log.Compress"),
+	})
 
 	services.Initialize()
 }

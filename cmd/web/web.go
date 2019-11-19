@@ -3,6 +3,8 @@ package web
 import (
 	"fmt"
 
+	"github.com/tosone/mirrorepo/travel"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 
@@ -14,6 +16,8 @@ var err error
 
 // Initialize ..
 func Initialize() {
+	go travel.Initialize()
+
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.Default()
 
@@ -30,8 +34,8 @@ func Initialize() {
 	var listenAddress = fmt.Sprintf("%s:%s", viper.GetString("Web.Host"), viper.GetString("Web.Port"))
 
 	logging.Info(fmt.Sprintf("Listening and serving HTTP on %s.", listenAddress))
-	err = engine.Run(listenAddress)
-	if err != nil {
-		logging.Panic(err.Error())
+
+	if err = engine.Run(listenAddress); err != nil {
+		logging.Panic(err)
 	}
 }

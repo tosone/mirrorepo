@@ -22,14 +22,13 @@ import (
 
 const serviceName = "clone"
 
-var cloneLocker = new(sync.Mutex)
-
 var currCloneID uint
 
 var cloneList = map[uint]*models.Repo{}
 
 // Initialize ..
 func Initialize() {
+	var cloneLocker = new(sync.Mutex)
 	channel := make(chan taskmgr.ServiceCommand, 1)
 	go func() {
 		for control := range channel {

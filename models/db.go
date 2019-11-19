@@ -44,19 +44,15 @@ func Connect() (err error) {
 		logging.WithFields(logging.Fields{
 			"engine":     viper.GetString("Database.Engine"),
 			"dialString": dialString,
-		}).Panic(err.Error())
+		}).Panic(err)
 	}
 
-	if err = engine.AutoMigrate(
-		new(Repo),
-		new(Log),
-		new(HistoryInfo),
-	).Error; err != nil {
-		logging.Panic(err.Error())
+	if err = engine.AutoMigrate(new(Repo), new(Log), new(HistoryInfo)).Error; err != nil {
+		logging.Panic(err)
 	}
 
-	engine.LogMode(true)
-	var gLogger logger.Logger
+	engine.LogMode(viper.GetBool("Log.ShowSQL"))
+	var gLogger = logger.Logger{}
 	engine.SetLogger(gLogger)
 	return
 }

@@ -21,10 +21,6 @@ var BuildStamp = "no provided"
 // GitHash GitHash
 var GitHash = "no provided"
 
-func init() {
-	// logging.Setting()
-}
-
 func main() {
 	if runtime.GOOS == "windows" {
 		log.Fatalln("mirrorepo not support windows just linux.")
