@@ -5,7 +5,7 @@ import (
 
 	"strings"
 
-	"github.com/Unknwon/com"
+	"github.com/unknwon/com"
 )
 
 // IsRepo ..

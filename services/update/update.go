@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Unknwon/com"
+	"github.com/unknwon/com"
 	"github.com/spf13/viper"
 
 	"github.com/tosone/logging"

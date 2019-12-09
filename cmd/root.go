@@ -5,7 +5,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/Unknwon/com"
+	"github.com/unknwon/com"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 

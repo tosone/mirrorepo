@@ -1,7 +1,7 @@
 Common Functions
 ================
 
-[![Build Status](https://travis-ci.org/Unknwon/com.svg)](https://travis-ci.org/Unknwon/com) [![Go Walker](http://gowalker.org/api/v1/badge)](http://gowalker.org/github.com/Unknwon/com)
+[![Build Status](https://travis-ci.org/Unknwon/com.svg)](https://travis-ci.org/Unknwon/com) [![Go Walker](http://gowalker.org/api/v1/badge)](http://gowalker.org/github.com/unknwon/com)
 
 This is an open source project for commonly used functions for the Go programming language.
 
